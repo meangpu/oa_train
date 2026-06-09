@@ -177,7 +177,7 @@ CreateThread(function()
     while true do
         if isWaitTeleport and waitTeleportSecondsLeft > 0 then
             local coords = GetEntityCoords(PlayerPedId())
-            DrawText3D(coords.x, coords.y, coords.z + 1.0, ("Please wait: %ds"):format(waitTeleportSecondsLeft))
+            DrawText3D(coords.x, coords.y, coords.z + 1.0, ("%d"):format(waitTeleportSecondsLeft))
             Wait(0)
         else
             Wait(500)
