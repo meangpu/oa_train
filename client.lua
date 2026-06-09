@@ -75,8 +75,8 @@ local function ChangeUINavPage(page)
 end
 
 local drawTextScreenX, drawTextScreenY
-local DRAW_TEXT_MOVE_THRESHOLD = 0.006
-local DRAW_TEXT_SMOOTH_FACTOR = 0.4
+local DRAW_TEXT_MOVE_THRESHOLD = 0.002
+local DRAW_TEXT_SMOOTH_FACTOR = 0.2
 
 local function resetDrawTextScreen()
     drawTextScreenX, drawTextScreenY = nil, nil
