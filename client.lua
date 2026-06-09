@@ -206,9 +206,9 @@ CreateThread(function()
             DrawText3D(
                 waitTeleportDrawCoords.x,
                 waitTeleportDrawCoords.y,
-                waitTeleportDrawCoords.z + 1.5,
-                waitTeleportSecondsLeft,
-                2
+                waitTeleportDrawCoords.z + 1.1,
+                string.format("%d", waitTeleportSecondsLeft),
+                1
             )
             Wait(0)
         else
