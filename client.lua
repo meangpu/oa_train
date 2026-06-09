@@ -1,5 +1,6 @@
 local isOpenUI = false
 local scriptName = GetCurrentResourceName()
+local isWaitTeleport = false
 
 AddEventHandler("onClientResourceStart", function(resource)
     if scriptName ~= resource then return end
@@ -64,6 +65,24 @@ local function ToggleUI()
     else
         OpenUI()
     end
+end
+
+local function FreezePlayer()
+    local ped = PlayerPedId()
+    FreezeEntityPosition(ped, true)
+    SetEntityAlpha(ped, 150, false)
+    isWaitTeleport = true
+    CreateThread(function()
+        while isWaitTeleport do
+            Wait(0)
+            DisableAllControlActions(0)
+        end
+    end)
+    SetTimeout(10000, function()
+        SetEntityAlpha(ped, 255, false)
+        FreezeEntityPosition(ped, false)
+        isWaitTeleport = false
+    end)
 end
 
 --========================================
@@ -136,6 +155,7 @@ Citizen.CreateThread(function()
             ToggleUI()
             DebugPrint("U press")
             NotifyPlayer("U press")
+            FreezePlayer()
         end
         Citizen.Wait(7)
     end
