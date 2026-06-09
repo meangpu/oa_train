@@ -152,9 +152,7 @@ end)
 Citizen.CreateThread(function()
     while true do
         if IsControlJustPressed(0, GetHashKey("INPUT_AIM_IN_AIR")) then -- key u INPUT_AIM_IN_AIR
-            ToggleUI()
-            DebugPrint("U press")
-            NotifyPlayer("U press")
+            -- ToggleUI()
             FreezePlayer()
         end
         Citizen.Wait(7)
