@@ -152,20 +152,15 @@ end)
 
 CreateThread(function()
     while true do
-        if isOpenUI then
-            ApplyLimitedControls(uiControlsToEnable)
-            Wait(7)
-        else
-            Wait(500)
-        end
-    end
-end)
-
-CreateThread(function()
-    while true do
+        local controlsToEnable
         if isWaitTeleport then
-            ApplyLimitedControls(freezeControlsToEnable)
-            Wait(7)
+            controlsToEnable = freezeControlsToEnable
+        elseif isOpenUI then
+            controlsToEnable = uiControlsToEnable
+        end
+        if controlsToEnable then
+            ApplyLimitedControls(controlsToEnable)
+            Wait(0)
         else
             Wait(500)
         end
