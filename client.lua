@@ -110,8 +110,8 @@ local function DrawText3D(x, y, z, text, bgWidth)
     SetTextColor(255, 255, 255, 215)
     SetTextCentre(true)
     DisplayText(str, _x, _y)
-    local factor = (bgWidth or string.len(text)) / 150
-    DrawSprite("generic_textures", "hud_menu_4a", _x, _y + 0.0125, 0.015 + factor, 0.03, 0.1, 38, 38, 38, 190)
+    local factor = (bgWidth or string.len(text)) / 225
+    DrawSprite("generic_textures", "hud_menu_4a", _x, _y + 0.0125, 0.015 + factor, 0.03, 0.1, 38, 38, 10, 190)
 end
 
 
@@ -206,8 +206,8 @@ CreateThread(function()
             DrawText3D(
                 waitTeleportDrawCoords.x,
                 waitTeleportDrawCoords.y,
-                waitTeleportDrawCoords.z + 1.0,
-                ("%02d"):format(waitTeleportSecondsLeft),
+                waitTeleportDrawCoords.z + 1.5,
+                waitTeleportSecondsLeft,
                 2
             )
             Wait(0)
