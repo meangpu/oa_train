@@ -7,9 +7,9 @@ import { ItemData } from "@/types/ItemData";
 
 const audioManager = new AudioManager({
   defaultPoolSize: 2,
-  defaultVolume: 0.3,
-  defaultMinPitch: 0.8,
-  defaultMaxPitch: 1.2,
+  defaultVolume: 0.5,
+  defaultMinPitch: 0.9,
+  defaultMaxPitch: 1.1,
 });
 
 const getAudioManager = () => audioManager;
