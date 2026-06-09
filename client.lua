@@ -160,7 +160,7 @@ CreateThread(function()
         end
         if controlsToEnable then
             ApplyLimitedControls(controlsToEnable)
-            Wait(0)
+            Wait(7)
         else
             Wait(500)
         end
