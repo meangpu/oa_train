@@ -5,9 +5,15 @@ local isWaitTeleport = false
 --========================================
 --  Enable Controls
 --========================================
-local controlsToEnable = {
+local uiControlsToEnable = {
     GetHashKey("INPUT_PUSH_TO_TALK"),
     GetHashKey("INPUT_AIM_IN_AIR") -- U
+}
+local freezeControlsToEnable = {
+    GetHashKey("INPUT_PUSH_TO_TALK"),
+    GetHashKey("INPUT_AIM_IN_AIR"), -- U
+    GetHashKey("INPUT_LOOK_LR"),
+    GetHashKey("INPUT_LOOK_UD"),
 }
 --========================================
 --  Enable Controls
@@ -66,9 +72,9 @@ local function ChangeUINavPage(page)
     SendNUIMessage({ type = "ChangeUINavPage", page = page })
 end
 
-local function ApplyLimitedControls()
+local function ApplyLimitedControls(enableList)
     DisableAllControlActions(0)
-    for _, controlHash in ipairs(controlsToEnable) do
+    for _, controlHash in ipairs(enableList) do
         EnableControlAction(0, controlHash, true)
     end
 end
@@ -146,8 +152,19 @@ end)
 
 CreateThread(function()
     while true do
-        if isOpenUI or isWaitTeleport then
-            ApplyLimitedControls()
+        if isOpenUI then
+            ApplyLimitedControls(uiControlsToEnable)
+            Wait(7)
+        else
+            Wait(500)
+        end
+    end
+end)
+
+CreateThread(function()
+    while true do
+        if isWaitTeleport then
+            ApplyLimitedControls(freezeControlsToEnable)
             Wait(7)
         else
             Wait(500)
