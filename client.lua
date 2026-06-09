@@ -144,11 +144,6 @@ end)
 --========================================
 --  Commands
 --========================================
-RegisterCommand("t_change_nav", function(source, args, rawCommand)
-    local path = args[1] or "/"
-    NotifyPlayer("t_change_nav: " .. path)
-    ChangeUINavPage(path)
-end, false)
 
 RegisterCommand("t_coord_check", function(source, args, rawCommand)
     local location = vector3(-5534.63, -2930.89, -1.935)
