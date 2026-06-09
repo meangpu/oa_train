@@ -1,0 +1,236 @@
+@import url("https://fonts.googleapis.com/css2?family=K2D:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap");
+@import "tailwindcss";
+/* @plugin "tailwindcss-animate"; */
+@tailwind utilities;
+
+@theme {
+  --color-bg: #271b15;
+  --color-bg-black: #1d1917;
+  --color-bg-black-hover: #1b1b1b;
+  --color-bg-black-opacity: #1b1b1bbe;
+
+  --color-bg-light: #36261e;
+  --color-bg-light-more: #4d3c34;
+  --color-bg-grey: #271b159d;
+  --color-green-light: #37c2af;
+  --color-price: #39b48a;
+  --color-green: #2f8277;
+  --color-bg-green: #2f8277;
+  --color-green-hover: #24636b;
+
+  --color-red-warn: rgb(139, 14, 14);
+  --color-red-warn-hover: rgba(124, 20, 20, 0.904);
+
+  --color-white: #eeead6;
+  --color-grey: #eeead698;
+  --color-grey-more: #eeead634;
+  --color-grey-more-more: #eeead627;
+  --color-grey-more-more-more: #eeead611;
+
+  --color-black-overlay: rgba(0, 0, 0, 0.8);
+}
+
+@utility flex-center {
+  @apply flex justify-center items-center;
+}
+@utility h-center {
+  @apply left-1/2 -translate-x-1/2;
+}
+@utility v-center {
+  @apply top-1/2 -translate-y-1/2;
+}
+@utility absolute-center {
+  @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
+}
+
+@layer components {
+  .canClickList:hover {
+    @apply text-grey;
+  }
+
+  .btn-grey-small {
+    @apply bg-grey-more-more;
+  }
+  .btn-grey-small:not(:disabled):hover {
+    @apply bg-grey-more;
+  }
+
+  .btn-green {
+    @apply bg-green border border-green;
+  }
+  .btn-green:not(:disabled):hover {
+    @apply bg-green-hover;
+  }
+
+  .btn-outline {
+    @apply border border-grey-more;
+  }
+  .btn-outline:not(:disabled):hover {
+    @apply border-grey bg-grey-more-more;
+  }
+
+  .btn-white {
+    @apply bg-white text-bg-black border border-white;
+  }
+  .btn-white:not(:disabled):hover {
+    @apply bg-grey text-bg-black;
+  }
+  .me-p-sm {
+    @apply px-1.5 py-0.5;
+  }
+
+  .btn-grey-more {
+    @apply bg-grey-more border border-grey-more;
+  }
+  .btn-grey-more:not(:disabled):hover {
+    @apply opacity-60;
+  }
+
+  .waringRed {
+    @apply text-white bg-red-warn px-2 pt-1 pb-1.5 rounded-md font-extrabold text-xl;
+  }
+  .waringRedSmall {
+    @apply text-white bg-red-warn  rounded-md font-extrabold  px-1 pt-0 pb-1 text-base;
+  }
+
+  .error {
+    @apply text-white bg-red-warn rounded-md font-medium px-1 pt-0 pb-1 text-[.85rem];
+  }
+
+  .me_input {
+    @apply text-bg border-2 border-bg bg-white rounded-lg h-[20px] relative px-1.5 py-3 no-underline my-0.5 font-semibold select-none focus:outline-none focus:ring-0;
+  }
+
+  .me_input_less {
+    @apply text-bg border-2 border-bg bg-white rounded-md  relative no-underline  font-semibold select-none focus:outline-none focus:ring-0;
+  }
+  .me_input_better {
+    @apply w-full pl-10 pr-10 py-2 focus:outline-none focus:ring-0;
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-transparent w-full h-full text-white;
+  }
+  button {
+    @apply rounded-md px-1.5 py-1.5 border-0 font-bold transition-all duration-200 ease-in-out cursor-pointer text-white disabled:opacity-20;
+  }
+}
+
+#root.dev {
+  display: block;
+  background-color: #131313;
+}
+
+#root.prod {
+  display: none;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  font-family: "K2D";
+}
+
+* {
+  font-family: "K2D";
+  -webkit-user-drag: none;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-white) rgba(255, 255, 255, 0.062);
+  }
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  -webkit-overflow-scrolling: touch;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.027);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--color-white);
+  border-radius: 2px;
+}
+
+*::-webkit-scrollbar-thumb:hover:not(:disabled) {
+  background: var(--color-white);
+}
+
+*::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+  background: transparent;
+}
+
+*::-webkit-scrollbar-button:single-button,
+*::-webkit-scrollbar-button:double-button,
+*::-webkit-scrollbar-button:vertical:decrement,
+*::-webkit-scrollbar-button:vertical:increment,
+*::-webkit-scrollbar-button:horizontal:decrement,
+*::-webkit-scrollbar-button:horizontal:increment {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.ascending::after {
+  content: " ▲";
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.descending::after {
+  content: " ▼";
+  white-space: nowrap;
+  display: inline-block;
+}
+
+th {
+  white-space: nowrap;
+}
+th.ascending,
+th.descending {
+  white-space: nowrap;
+}
+
+.hide-overflow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.no-wrap {
+  white-space: nowrap;
+}
+
+.roboto-mono {
+  font-family: "Roboto Mono";
+}
+
+.blur-bg {
+  backdrop-filter: blur(5px);
+}
+
+.blur-bg-less {
+  backdrop-filter: blur(2px);
+}
+
+.sepia-img {
+  filter: sepia(1);
+}
+
+/* 2026-02-23 อันนี้คือแก้การกด shift ละมันขึ้นกรอบขาวล่ะ */
+:focus {
+  outline: none;
+}
