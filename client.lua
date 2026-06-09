@@ -111,7 +111,7 @@ local function DrawText3D(x, y, z, text, bgWidth)
     SetTextCentre(true)
     DisplayText(str, _x, _y)
     local factor = (bgWidth or string.len(text)) / 225
-    DrawSprite("generic_textures", "hud_menu_4a", _x, _y + 0.0125, 0.015 + factor, 0.03, 0.1, 38, 38, 38, 190)
+    DrawSprite("feeds", "hud_menu_4a", _x, _y + 0.0125, 0.015 + factor, 0.03, 0.1, 35, 35, 35, 190, false)
 end
 
 
