@@ -74,18 +74,46 @@ local function ChangeUINavPage(page)
     SendNUIMessage({ type = "ChangeUINavPage", page = page })
 end
 
-local function DrawText3D(x, y, z, text, bgWidth)
-    local onScreen, _x, _y = GetScreenCoordFromWorldCoord(x, y, z)
-    local str = CreateVarString(10, "LITERAL_STRING", text, Citizen.ResultAsLong())
-    if onScreen then
-        SetTextScale(0.30, 0.30)
-        SetTextFontForCurrentCommand(1)
-        SetTextColor(255, 255, 255, 215)
-        SetTextCentre(true)
-        DisplayText(str, _x, _y)
-        local factor = (bgWidth or string.len(text)) / 225
-        DrawSprite("feeds", "hud_menu_4a", _x, _y + 0.0125, 0.015 + factor, 0.03, 0.1, 35, 35, 35, 190, false)
+local drawTextScreenX, drawTextScreenY
+local DRAW_TEXT_MOVE_THRESHOLD = 0.006
+local DRAW_TEXT_SMOOTH_FACTOR = 0.4
+
+local function resetDrawTextScreen()
+    drawTextScreenX, drawTextScreenY = nil, nil
+end
+
+local function dampScreenCoord(rawX, rawY)
+    if not drawTextScreenX then
+        drawTextScreenX, drawTextScreenY = rawX, rawY
+        return rawX, rawY
     end
+    local dx = rawX - drawTextScreenX
+    local dy = rawY - drawTextScreenY
+    if math.abs(dx) < DRAW_TEXT_MOVE_THRESHOLD and math.abs(dy) < DRAW_TEXT_MOVE_THRESHOLD then
+        return drawTextScreenX, drawTextScreenY
+    end
+
+    drawTextScreenX = drawTextScreenX + dx * DRAW_TEXT_SMOOTH_FACTOR
+    drawTextScreenY = drawTextScreenY + dy * DRAW_TEXT_SMOOTH_FACTOR
+    return drawTextScreenX, drawTextScreenY
+end
+
+local function DrawText3D(x, y, z, text, bgWidth)
+    local onScreen, rawX, rawY = GetScreenCoordFromWorldCoord(x, y, z)
+    if not onScreen then
+        resetDrawTextScreen()
+        return
+    end
+
+    local _x, _y = dampScreenCoord(rawX, rawY)
+    local str = CreateVarString(10, "LITERAL_STRING", text, Citizen.ResultAsLong())
+    SetTextScale(0.30, 0.30)
+    SetTextFontForCurrentCommand(1)
+    SetTextColor(255, 255, 255, 215)
+    SetTextCentre(true)
+    DisplayText(str, _x, _y)
+    local factor = (bgWidth or string.len(text)) / 225
+    DrawSprite("feeds", "hud_menu_4a", _x, _y + 0.0125, 0.015 + factor, 0.03, 0.1, 35, 35, 35, 190, false)
 end
 
 
@@ -186,6 +214,7 @@ CreateThread(function()
             )
             Wait(0)
         else
+            resetDrawTextScreen()
             Wait(500)
         end
     end
