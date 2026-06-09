@@ -27,7 +27,7 @@ interface GlobalVarType {
   uiEnabled: boolean;
   setUiEnabled: (enabled: boolean) => void;
   setRouterNavigate: (
-    navigate: ((to: string) => void) | null | undefined
+    navigate: ((to: string) => void) | null | undefined,
   ) => void;
 
   playerInventory: ItemData[];
@@ -154,9 +154,13 @@ export function useEventHandlers() {
         case "ChangeUINavPage":
           useGlobalVar.getState().ChangeUINavPage(data.page);
           break;
+        // case "PlayAudio": {
+        //   audioManager.playAudio("notification.mp3", { volume: 0.5 });
+        //   audioManager.playAudio("buttonClick.mp3", { poolSize: 5 });
+        //   break;
+        // }
         case "PlayAudio": {
-          audioManager.playAudio("notification.mp3", { volume: 0.5 });
-          audioManager.playAudio("buttonClick.mp3", { poolSize: 5 });
+          audioManager.playAudio(data.audioName);
           break;
         }
         case "StopAudio": {

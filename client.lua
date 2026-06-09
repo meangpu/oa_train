@@ -85,16 +85,22 @@ local function ToggleUI()
     end
 end
 
+local function PlayUIAudio(audioName)
+    SendNUIMessage({ type = "PlayAudio", audioName = audioName })
+end
+
 local function FreezePlayer()
     local ped = PlayerPedId()
     FreezeEntityPosition(ped, true)
     SetEntityAlpha(ped, 150, false)
     isWaitTeleport = true
     ClearPedTasks(ped)
+    PlayUIAudio("TrainGetIn.mp3")
     SetTimeout(10000, function()
         SetEntityAlpha(ped, 255, false)
         FreezeEntityPosition(ped, false)
         isWaitTeleport = false
+        PlayUIAudio("TrainGetOut.mp3")
     end)
 end
 
