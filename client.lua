@@ -126,7 +126,7 @@ Citizen.CreateThread(function()
                 EnableControlAction(0, controlHash, true)
             end
         end
-        Citizen.Wait(0)
+        Citizen.Wait(7)
     end
 end)
 
@@ -137,7 +137,7 @@ Citizen.CreateThread(function()
             DebugPrint("U press")
             NotifyPlayer("U press")
         end
-        Citizen.Wait(0)
+        Citizen.Wait(7)
     end
 end)
 
