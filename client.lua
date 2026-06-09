@@ -2,6 +2,7 @@ local isOpenUI = false
 local scriptName = GetCurrentResourceName()
 local isWaitTeleport = false
 local waitTeleportSecondsLeft = 0
+local waitTeleportDrawCoords = nil
 
 --========================================
 --  Enable Controls
@@ -73,10 +74,8 @@ local function ChangeUINavPage(page)
     SendNUIMessage({ type = "ChangeUINavPage", page = page })
 end
 
-local function DrawText3D(x, y, z, text)
+local function DrawText3D(x, y, z, text, bgWidth)
     local onScreen, _x, _y = GetScreenCoordFromWorldCoord(x, y, z)
-    local px, py, pz = table.unpack(GetGameplayCamCoord())
-    local dist = GetDistanceBetweenCoords(px, py, pz, x, y, z, true)
     local str = CreateVarString(10, "LITERAL_STRING", text, Citizen.ResultAsLong())
     if onScreen then
         SetTextScale(0.30, 0.30)
@@ -84,7 +83,7 @@ local function DrawText3D(x, y, z, text)
         SetTextColor(255, 255, 255, 215)
         SetTextCentre(true)
         DisplayText(str, _x, _y)
-        local factor = (string.len(text)) / 225
+        local factor = (bgWidth or string.len(text)) / 225
         DrawSprite("feeds", "hud_menu_4a", _x, _y + 0.0125, 0.015 + factor, 0.03, 0.1, 35, 35, 35, 190, false)
     end
 end
@@ -113,6 +112,7 @@ local function FreezePlayer()
     local ped = PlayerPedId()
     isWaitTeleport = true
     waitTeleportSecondsLeft = 10
+    waitTeleportDrawCoords = GetEntityCoords(ped)
     FreezeEntityPosition(ped, true)
     SetEntityAlpha(ped, 150, false)
     ClearPedTasks(ped)
@@ -125,6 +125,7 @@ local function FreezePlayer()
         SetEntityAlpha(ped, 255, false)
         FreezeEntityPosition(ped, false)
         isWaitTeleport = false
+        waitTeleportDrawCoords = nil
         PlayUIAudio("TrainGetOut.mp3")
     end)
 end
@@ -175,9 +176,14 @@ end)
 
 CreateThread(function()
     while true do
-        if isWaitTeleport and waitTeleportSecondsLeft > 0 then
-            local coords = GetEntityCoords(PlayerPedId())
-            DrawText3D(coords.x, coords.y, coords.z + 1.0, ("%d"):format(waitTeleportSecondsLeft))
+        if isWaitTeleport and waitTeleportSecondsLeft > 0 and waitTeleportDrawCoords then
+            DrawText3D(
+                waitTeleportDrawCoords.x,
+                waitTeleportDrawCoords.y,
+                waitTeleportDrawCoords.z + 1.0,
+                ("%02d"):format(waitTeleportSecondsLeft),
+                2
+            )
             Wait(0)
         else
             Wait(500)
