@@ -92,7 +92,6 @@ local function dampScreenCoord(rawX, rawY)
     if math.abs(dx) < DRAW_TEXT_MOVE_THRESHOLD and math.abs(dy) < DRAW_TEXT_MOVE_THRESHOLD then
         return drawTextScreenX, drawTextScreenY
     end
-
     drawTextScreenX = drawTextScreenX + dx * DRAW_TEXT_SMOOTH_FACTOR
     drawTextScreenY = drawTextScreenY + dy * DRAW_TEXT_SMOOTH_FACTOR
     return drawTextScreenX, drawTextScreenY
@@ -104,7 +103,6 @@ local function DrawText3D(x, y, z, text, bgWidth)
         resetDrawTextScreen()
         return
     end
-
     local _x, _y = dampScreenCoord(rawX, rawY)
     local str = CreateVarString(10, "LITERAL_STRING", text, Citizen.ResultAsLong())
     SetTextScale(0.30, 0.30)
@@ -112,8 +110,8 @@ local function DrawText3D(x, y, z, text, bgWidth)
     SetTextColor(255, 255, 255, 215)
     SetTextCentre(true)
     DisplayText(str, _x, _y)
-    local factor = (bgWidth or string.len(text)) / 225
-    DrawSprite("feeds", "hud_menu_4a", _x, _y + 0.0125, 0.015 + factor, 0.03, 0.1, 35, 35, 35, 190, false)
+    local factor = (bgWidth or string.len(text)) / 150
+    DrawSprite("generic_textures", "hud_menu_4a", _x, _y + 0.0125, 0.015 + factor, 0.03, 0.1, 38, 38, 38, 190)
 end
 
 
