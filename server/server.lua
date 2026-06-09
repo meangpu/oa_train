@@ -11,18 +11,13 @@ local function eventName(name) return ('%s:%s'):format(scriptName, name) end
 local function NotifyPlayer(source, message) TriggerClientEvent("vorp:TipRight", source, message) end
 local function LogDataDog(message, source) TriggerEvent('oa_logs:sendtodiscord', scriptName, message, source) end
 
-local function DebugPrint(message)
-    if not Config.DebugPrintServer then return end
-    print(message)
-end
-
 
 local function LogGuardWithSource(message, source)
     local success, error = pcall(function()
         exports.oa_guard:discordLogWithSource(message, source)
     end)
     if not success then
-        DebugPrint("LogGuard error: " .. tostring(error))
+        print("LogGuard error: " .. tostring(error))
     end
 end
 
@@ -75,7 +70,6 @@ RegisterCommand("t_addItem", function(source, args, rawCommand)
     vorpInventory.addItem(_source, itemName, itemCount)
     local logword = ("เพิ่ม %sx%d"):format(itemName, itemCount)
     NotifyPlayer(_source, ("เพิ่ม %s <green-bg>x%d</green-bg>"):format(itemName, itemCount))
-    DebugPrint(logword)
     LogDataDog(logword, _source)
 end, true)
 

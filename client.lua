@@ -22,10 +22,6 @@ end)
 -- Function
 --========================================
 
-local function DebugPrint(message)
-    if not Config.DebugPrintClient then return end
-    print(message)
-end
 local function eventName(name) return ('%s:%s'):format(scriptName, name) end
 local function NotifyPlayer(message) TriggerEvent("vorp:TipRight", message) end
 local function GetPlayerDistanceToPos(pos) return #(GetEntityCoords(PlayerPedId()) - pos) end
@@ -116,7 +112,6 @@ end
 --  Event Listeners,
 --========================================
 RegisterNetEvent(eventName("ReceiveClientData"), function(data)
-    DebugPrint("ReceiveClientData: " .. json.encode(data))
     SendNUIMessage({ type = "SetClientData", clientData = data })
 end)
 

@@ -1,7 +1,4 @@
 Config = {}
-Config.DebugPrintClient = true
-Config.DebugPrintServer = true
-
 local minute = 60 * 1000
 
 Config.Location = {
