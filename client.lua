@@ -2,6 +2,17 @@ local isOpenUI = false
 local scriptName = GetCurrentResourceName()
 local isWaitTeleport = false
 
+--========================================
+--  Enable Controls
+--========================================
+local controlsToEnable = {
+    GetHashKey("INPUT_PUSH_TO_TALK"),
+    GetHashKey("INPUT_AIM_IN_AIR") -- U
+}
+--========================================
+--  Enable Controls
+--========================================
+
 AddEventHandler("onClientResourceStart", function(resource)
     if scriptName ~= resource then return end
     print(scriptName .. ": client start")
@@ -59,6 +70,13 @@ local function ChangeUINavPage(page)
     SendNUIMessage({ type = "ChangeUINavPage", page = page })
 end
 
+local function ApplyLimitedControls()
+    DisableAllControlActions(0)
+    for _, controlHash in ipairs(controlsToEnable) do
+        EnableControlAction(0, controlHash, true)
+    end
+end
+
 local function ToggleUI()
     if isOpenUI then
         CloseUI()
@@ -72,12 +90,7 @@ local function FreezePlayer()
     FreezeEntityPosition(ped, true)
     SetEntityAlpha(ped, 150, false)
     isWaitTeleport = true
-    CreateThread(function()
-        while isWaitTeleport do
-            Wait(0)
-            DisableAllControlActions(0)
-        end
-    end)
+    ClearPedTasks(ped)
     SetTimeout(10000, function()
         SetEntityAlpha(ped, 255, false)
         FreezeEntityPosition(ped, false)
@@ -129,23 +142,15 @@ RegisterNUICallback("NUILoaded", function(_, cb)
     cb('ok')
 end)
 
---========================================
---  Enable Controls
---========================================
-local controlsToEnable = {
-    GetHashKey("INPUT_PUSH_TO_TALK"),
-    GetHashKey("INPUT_AIM_IN_AIR") -- U
-}
 
-Citizen.CreateThread(function()
+CreateThread(function()
     while true do
-        if isOpenUI then
-            DisableAllControlActions(0)
-            for _, controlHash in ipairs(controlsToEnable) do
-                EnableControlAction(0, controlHash, true)
-            end
+        if isOpenUI or isWaitTeleport then
+            ApplyLimitedControls()
+            Wait(7)
+        else
+            Wait(500)
         end
-        Citizen.Wait(7)
     end
 end)
 
