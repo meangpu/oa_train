@@ -87,9 +87,9 @@ end
 
 local function FreezePlayer()
     local ped = PlayerPedId()
+    isWaitTeleport = true
     FreezeEntityPosition(ped, true)
     SetEntityAlpha(ped, 150, false)
-    isWaitTeleport = true
     ClearPedTasks(ped)
     PlayUIAudio("TrainGetIn.mp3")
     SetTimeout(10000, function()
