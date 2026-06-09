@@ -9,4 +9,8 @@ Config.Location = {
     ["RHODES"] = {
         npcLocation = vector4(1230.248, -1298.516, 76.954, 221.872)
     },
+    ["SAINT"] = {
+        npcLocation = vector4(2674.400, -1459.525, 46.341, 110.163)
+        -- อันนี้ยังไม่เสร็จ
+    },
 }
