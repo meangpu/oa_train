@@ -11,4 +11,5 @@ export type {
 } from "./types";
 
 export { parseVector3String } from "./types";
+export { gameToLeaflet } from "./mapCoords";
 

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import useGlobalVar from "@/services/GlobalVar";
 
 export interface Coordinates {
@@ -12,6 +13,7 @@ export interface MiniMapProps {
   width?: string;
   className?: string;
   showPlayerLocation?: boolean;
+  children?: ReactNode;
 }
 
 export interface MiniMapRef {

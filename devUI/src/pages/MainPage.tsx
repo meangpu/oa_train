@@ -1,4 +1,5 @@
 import MiniMap from "@/components/meRedMCoord/MiniMap";
+import { TrainPins } from "@/components/train";
 import useGlobalVar from "@/services/GlobalVar";
 import React from "react";
 
@@ -13,7 +14,9 @@ const MainPage: React.FC = () => {
         height='h-[530px]'
         width='w-[944px]'
         showPlayerLocation
-      />
+      >
+        <TrainPins />
+      </MiniMap>
     </div>
   );
 };
