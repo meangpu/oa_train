@@ -94,26 +94,6 @@ local function SentPlayerMoneyToUI()
     })
 end
 
-local function SendPlayerInvToUI()
-    local inventoryArray = {}
-    local successInv, userInventory = pcall(exports.vorp_inventory.REQ_USERIVENTORY)
-    if not successInv then userInventory = {} end
-    for _, item in pairs(userInventory) do
-        if item and item.name and item.count then
-            local label = item.label or item.name
-            inventoryArray[#inventoryArray + 1] = {
-                name = item.name,
-                label = label,
-                count = item.count,
-                limit = item.limit
-            }
-        end
-    end
-    SendNUIMessage({
-        type = "SetPlayerInv",
-        inventoryData = inventoryArray
-    })
-end
 
 local function SendPlayerLocationToUI()
     -- {"x":-1644.4381103515626,"y":-1393.212646484375,"z":83.19735717773438}
@@ -130,20 +110,15 @@ end
 
 local function OpenUI()
     SentPlayerMoneyToUI()
-    SendNUIMessage({ type = "OpenUI" })
-    isOpenUI = true
+    SendPlayerLocationToUI()
     SetNuiFocus(true, true)
     SetNuiFocusKeepInput(true)
-    SendPlayerInvToUI()
-    SendPlayerLocationToUI()
-end
-
-local function ChangeUINavPage(page)
-    SendNUIMessage({ type = "ChangeUINavPage", page = page })
+    SendNUIMessage({ type = "OpenUI" })
+    isOpenUI = true
 end
 
 local function TeleportToLocation(loc)
-    DoScreenFadeOut(500)
+    DoScreenFadeOut(1000)
     while IsScreenFadingOut() do
         Wait(0)
     end
@@ -153,7 +128,7 @@ local function TeleportToLocation(loc)
         SetEntityHeading(ped, loc.w)
     end
     Wait(1000)
-    DoScreenFadeIn(500)
+    DoScreenFadeIn(2000)
     SendPlayerLocationToUI()
 end
 
