@@ -11,7 +11,7 @@ local BlipData = {}
 local nearNpc = false
 local TrainSounds = { "TrainGetIn.mp3", "TrainGetOut.mp3" }
 
-local trainUseCooldown = nil
+local trainUseCooldown = 0
 
 --========================================
 --  Enable Controls
@@ -268,15 +268,8 @@ local function FreezePlayer(waitSeconds, onComplete, toStationKey)
 end
 
 --========================================
---  Data Fetching
---========================================
-
---========================================
 --  Event Listeners,
 --========================================
-RegisterNetEvent(eventName("ReceiveClientData"), function(data)
-    SendNUIMessage({ type = "SetClientData", clientData = data })
-end)
 
 RegisterNetEvent("oa_toggleUI", function(isHide)
     SendNUIMessage({ type = 'SetGlobalShow', show = not isHide })
@@ -289,7 +282,6 @@ end)
 RegisterNetEvent(eventName("ReceiveUserCooldown"), function(secondsLeft)
     trainUseCooldown = math.max(0, math.floor(tonumber(secondsLeft) or 0))
     SendUserCooldownToUI(trainUseCooldown)
-
     if pendingUserCooldownCb then
         local cb = pendingUserCooldownCb
         pendingUserCooldownCb = nil

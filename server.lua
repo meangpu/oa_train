@@ -225,6 +225,7 @@ RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationK
         cost = details.cost,
     })
 end)
+
 RegisterServerEvent(eventName("RequestUserCooldown"), function()
     local _source = source
     local User = vorpCore.getUser(_source)
