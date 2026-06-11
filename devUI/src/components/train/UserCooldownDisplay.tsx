@@ -8,13 +8,14 @@ const UserCooldownDisplay: React.FC = () => {
   const requestUserCooldown = useGlobalVar(
     (state) => state.requestUserCooldown,
   );
+  const isCooldownActive = secondsLeft > 0;
 
   useEffect(() => {
     void requestUserCooldown();
   }, [requestUserCooldown]);
 
   useEffect(() => {
-    if (secondsLeft <= 0) return;
+    if (!isCooldownActive) return;
 
     const intervalId = window.setInterval(() => {
       useGlobalVar.setState((state) => ({
@@ -23,15 +24,15 @@ const UserCooldownDisplay: React.FC = () => {
     }, 1000);
 
     return () => window.clearInterval(intervalId);
-  }, [secondsLeft > 0]);
+  }, [isCooldownActive]);
 
   if (secondsLeft <= 0) return null;
 
   return (
-    <div className='flex items-center justify-center gap-2 rounded-lg border border-red/40 bg-red/10 px-3 py-1 text-sm text-red-light'>
+    <div className='flex items-center justify-center gap-1 rounded-lg  px-2 text-sm text-red-light'>
       <FaClock className='shrink-0 text-red-light' />
       <span>
-        ใช้งานรถไฟได้อีกครั้งใน{" "}
+        ใช้งานได้ในอีก{" "}
         <span className='font-extrabold text-red'>
           {formatCooldownRemaining(secondsLeft)}
         </span>
