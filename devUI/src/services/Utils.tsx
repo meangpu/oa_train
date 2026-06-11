@@ -1,4 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
+import type { ReactNode } from "react";
 
 export interface Coord3 {
   x: number;
@@ -7,7 +8,7 @@ export interface Coord3 {
 }
 
 export function isValidCoord3(
-  coord: Partial<Coord3> | undefined | null
+  coord: Partial<Coord3> | undefined | null,
 ): coord is Coord3 {
   if (!coord) return false;
   if (coord.x === undefined || coord.y === undefined) return false;
@@ -36,7 +37,7 @@ export function formatDistanceText(distance: number): string {
 
 export function distanceBetweenCoordsText(
   from: Coord3,
-  to: Coord3
+  to: Coord3,
 ): string | null {
   if (!isValidCoord3(from) || !isValidCoord3(to)) return null;
   return formatDistanceText(distanceBetweenCoords(from, to));
@@ -46,9 +47,16 @@ export function roundDownToHundred(value: number): number {
   return Math.floor(value / 100) * 100;
 }
 
-export function formatTravelCostText(distance: number): string {
+export function formatTravelCostText(distance: number): ReactNode {
   const cost = roundDownToHundred(Math.round(distance));
-  return `ค่าเดินทาง ${cost.toLocaleString()}`;
+  return (
+    <div>
+      ค่าเดินทาง{" "}
+      <span className='text-green-light font-extrabold'>
+        ${cost.toLocaleString()}
+      </span>
+    </div>
+  );
 }
 
 export function formatTrainStationLabel(stationKey: string): string {
@@ -61,7 +69,7 @@ export function formatTrainStationLabel(stationKey: string): string {
 
 export function findClosestStationKey(
   playerLocation: Coord3,
-  trainLocations: Record<string, { npcLocation: Coord3 }>
+  trainLocations: Record<string, { npcLocation: Coord3 }>,
 ): string | null {
   if (!isValidCoord3(playerLocation)) return null;
 
@@ -72,7 +80,7 @@ export function findClosestStationKey(
     if (!isValidCoord3(location.npcLocation)) continue;
     const distSq = distanceSquaredBetweenCoords(
       playerLocation,
-      location.npcLocation
+      location.npcLocation,
     );
     if (distSq < minDistSq) {
       minDistSq = distSq;

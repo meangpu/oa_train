@@ -275,6 +275,10 @@ th.descending {
   border-top-color: #1b1b1bbe;
 }
 
+.leaflet-tooltip.train-pin-tooltip .text-price {
+  color: #39b48a;
+}
+
 .train-pin-icon .train-pin-inner {
   transform: scale(1);
   transform-origin: center center;

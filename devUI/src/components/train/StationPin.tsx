@@ -54,10 +54,9 @@ const createTrainPinIcon = (
         className='text-[8px] absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap px-1 rounded '
         style={{
           color,
-          textShadow: "0 0 3px rgba(0,0,0,0.9)",
         }}
       >
-        {label}
+        {label.toUpperCase()}
       </div>
       <FaTrain
         style={{
@@ -75,7 +74,7 @@ const createTrainPinIcon = (
             textShadow: "0 0 3px rgba(0,0,0,0.9)",
           }}
         >
-          คุณอยู่นี่
+          คุณอยู่ที่นี่{" "}
         </div>
       ) : null}
     </div>,
@@ -125,7 +124,7 @@ const StationPin: React.FC<StationPinProps> = ({
     const distanceText = formatDistanceText(distance);
     const travelCostText = formatTravelCostText(distance);
     const distanceLine = currentStationLabel
-      ? `${distanceText} จาก ${currentStationLabel}`
+      ? `ระยะ ${distanceText}`
       : distanceText;
 
     return (
@@ -169,7 +168,7 @@ const StationPin: React.FC<StationPinProps> = ({
       {tooltipContent ? (
         <Tooltip
           direction='top'
-          offset={[0, -18]}
+          offset={[0, -34]}
           opacity={1}
           className='train-pin-tooltip'
         >
