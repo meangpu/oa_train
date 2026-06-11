@@ -101,12 +101,7 @@ local function getTrainUseCooldownSecondsLeft()
     if trainUseCooldownEndsAt == nil or trainUseCooldownEndsAt <= 0 then
         return 0
     end
-    print("--------------------------------")
-    print(trainUseCooldownEndsAt)
-    print(GetCloudTimeAsInt())
-    print("--------------------------------")
     local secondsLeft = trainUseCooldownEndsAt - GetCloudTimeAsInt()
-    print(secondsLeft)
     if secondsLeft <= 0 then
         trainUseCooldownEndsAt = 0
         return 0
@@ -437,7 +432,4 @@ end)
 --  Commands
 --========================================
 RegisterCommand("train_close", CloseUI, false)
-RegisterCommand("train_time", function()
-    print(GetCloudTimeAsInt())
-end, false)
 -- RegisterCommand("train_open", OpenUI, false)
