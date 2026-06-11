@@ -5,10 +5,17 @@ import React from "react";
 
 const MainPage: React.FC = () => {
   return (
-    <div className='flex-center flex-col gap-1 bg-bg-black-opacity p-4 rounded-lg'>
+    <div className='flex-center flex-col bg-bg-black-opacity p-4 rounded-lg'>
       <div className='flex-center gap-1'>
-        เลือกสถานีที่คุณต้องการไป
+        <div> เลือกสถานีที่คุณต้องการไป </div>
         <UserCooldownDisplay />
+      </div>
+      <div className='text-xs text-grey mb-2'>
+        สามารถใช้คำสั่ง{" "}
+        <span className='bg-grey-more-more text-white px-1 rounded'>
+          /train_cooldown
+        </span>{" "}
+        เพื่อดูเวลารอใช้งานรถไฟได้
       </div>
       <StaticTrainMap height='h-[720px]'>
         <TrainPins />
