@@ -4,7 +4,7 @@ local isWaitTeleport = false
 local waitTeleportSecondsLeft = 0
 local waitTeleportDrawCoords = nil
 
-local interactDistance = 3.0
+local interactDistance = Config.InteractDistance or 3.0
 local BlipData = {}
 local nearNpc = false
 
@@ -66,18 +66,6 @@ local function IsPlayerNearLocation(coords, playerCoords)
     return GetPlayerDistanceToPos(coords, playerCoords) < interactDistance
 end
 
-local function roundDownToHundred(value)
-    return math.floor(value / 100) * 100
-end
-
-local function getTravelCost(distance)
-    return roundDownToHundred(math.floor(distance + 0.5))
-end
-
-local function getWaitTimeSeconds(cost)
-    return math.floor(cost / 100)
-end
-
 local function findClosestStationKey(playerCoords)
     local closestKey = nil
     local minDistSq = math.huge
@@ -95,19 +83,6 @@ local function findClosestStationKey(playerCoords)
     end
 
     return closestKey
-end
-
-local function getTravelWaitSeconds(fromStation, toStation)
-    if not fromStation or not toStation then return 0 end
-
-    local fromNpc = fromStation.npcLocation
-    local toNpc = toStation.npcLocation
-    local distance = GetPlayerDistanceToPos(
-        { x = toNpc.x, y = toNpc.y, z = toNpc.z },
-        { x = fromNpc.x, y = fromNpc.y, z = fromNpc.z }
-    )
-    local cost = getTravelCost(distance)
-    return getWaitTimeSeconds(cost), cost
 end
 
 local function SentPlayerMoneyToUI()
@@ -297,6 +272,20 @@ RegisterNetEvent("oa_lib:forceCloseNuiFocus", function()
     CloseUI()
 end)
 
+RegisterNetEvent(eventName("TeleportToStationApproved"), function(data)
+    if not data or not data.toStationKey then return end
+    if isWaitTeleport then return end
+
+    CloseUI()
+    SentPlayerMoneyToUI()
+
+    local toStationKey = data.toStationKey
+    local waitSeconds = tonumber(data.waitSeconds) or 0
+
+    FreezePlayer(waitSeconds, function()
+        TeleportToStation(toStationKey)
+    end)
+end)
 
 --========================================
 --  NUI Callbacks
@@ -314,44 +303,29 @@ RegisterNUICallback("TeleportToStation", function(data, cb)
         return
     end
 
-    locationKey = string.upper(locationKey)
-    local destination = Config.Location[locationKey]
-    if not destination then
-        NotifyPlayer("Unknown station: " .. tostring(locationKey))
-        cb('ok')
-        return
-    end
-
     if isWaitTeleport then
         NotifyPlayer("กำลังรออยู่แล้ว")
         cb('ok')
         return
     end
 
+    locationKey = string.upper(locationKey)
     local playerCoords = GetEntityCoords(PlayerPedId())
     local fromKey = findClosestStationKey(playerCoords)
+    if not fromKey then
+        NotifyPlayer("ไม่พบสถานีใกล้เคียง")
+        cb('ok')
+        return
+    end
+
     if fromKey == locationKey then
         NotifyPlayer("คุณอยู่ที่สถานีนี้อยู่แล้ว")
         cb('ok')
         return
     end
 
-    local fromStation = fromKey and Config.Location[fromKey] or nil
-    local waitSeconds, cost = getTravelWaitSeconds(fromStation, destination)
-
-    local playerMoney = LocalPlayer.state.Character and LocalPlayer.state.Character.Money or 0
-    if playerMoney < cost then
-        NotifyPlayer("คุณมีเงินไม่พอ")
-        cb('ok')
-        return
-    end
-
-    CloseUI()
+    TriggerServerEvent(eventName("RequestTeleportToStation"), fromKey, locationKey)
     cb('ok')
-
-    FreezePlayer(waitSeconds, function()
-        TeleportToStation(locationKey)
-    end)
 end)
 
 RegisterNUICallback("NUILoaded", function(_, cb)
