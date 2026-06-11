@@ -4,6 +4,7 @@ import useGlobalModal from "./GlobalModal";
 import { NuiProxy } from "./NuiProxy";
 import AudioManager from "./AudioManager";
 import { ItemData } from "@/types/ItemData";
+import { TrainLocations } from "@/types/TrainConfig";
 
 const audioManager = new AudioManager({
   defaultPoolSize: 2,
@@ -38,6 +39,9 @@ interface GlobalVarType {
   setPlayerInventory: (inventory: ItemData[]) => void;
   findItemCountByName: (itemName: string) => number;
   findItemLimitByName: (itemName: string) => number;
+
+  trainLocations: TrainLocations;
+  setTrainLocations: (locations: TrainLocations) => void;
 
   setDisplayRoot: (display: boolean) => void;
   CloseUIDisableClient: () => void;
@@ -85,6 +89,11 @@ const useGlobalVar = create<GlobalVarType>((set, get) => {
     findItemLimitByName: (itemName: string) => {
       const entry = get().playerInventoryIndex.get(itemName);
       return entry?.limit ?? -1;
+    },
+
+    trainLocations: {},
+    setTrainLocations: (locations: TrainLocations) => {
+      set({ trainLocations: locations ?? {} });
     },
 
     setDisplayRoot: (display: boolean) => {
@@ -174,6 +183,9 @@ export function useEventHandlers() {
           useGlobalVar.setState({
             playerLocation: data.playerLocation,
           });
+          break;
+        case "SetupConfig":
+          useGlobalVar.getState().setTrainLocations(data.locations);
           break;
       }
     };

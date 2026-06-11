@@ -191,9 +191,11 @@ RegisterNUICallback("NUIFocusOff", function(_, cb)
     cb('ok')
 end)
 
-
 RegisterNUICallback("NUILoaded", function(_, cb)
-    -- SendNUIMessage({ type = "SetupConfig", itemTypes = Config.WhitelistedItems })
+    SendNUIMessage({
+        type = "SetupConfig",
+        locations = Config.Location,
+    })
     cb('ok')
 end)
 

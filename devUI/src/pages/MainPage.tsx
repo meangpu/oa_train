@@ -6,7 +6,8 @@ const MainPage: React.FC = () => {
   const playerLocation = useGlobalVar((state) => state.playerLocation);
 
   return (
-    <div className='flex-center flex-col gap-2 bg-bg-black-opacity p-4 rounded-lg'>
+    <div className='flex-center flex-col gap-1 bg-bg-black-opacity p-4 rounded-lg'>
+      เลือกสถานีที่คุณต้องการไป
       <MiniMap
         coords={playerLocation}
         height='h-[530px]'
