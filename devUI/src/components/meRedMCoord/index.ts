@@ -14,6 +14,9 @@ export { parseVector3String } from "./types";
 export {
   gameToLeaflet,
   gameToLeafletStatic,
+  gameToStaticMapPixel,
+  getStaticMapLayerTransform,
+  getStaticMapScale,
   MAP_CENTER_COORDS,
   MAP_ZOOM,
   LEAFLET_MAP_BOUNDS,
@@ -22,5 +25,5 @@ export {
   STATIC_MAP_VIEW_OFFSET,
   STATIC_MAP_ZOOM,
 } from "./mapCoords";
-export type { MapViewOffset } from "./mapCoords";
+export type { MapViewOffset, StaticMapViewport } from "./mapCoords";
 

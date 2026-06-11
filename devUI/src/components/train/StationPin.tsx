@@ -1,9 +1,7 @@
 import React, { useCallback, useMemo } from "react";
-import { Marker } from "react-leaflet";
-import L from "leaflet";
-import { renderToStaticMarkup } from "react-dom/server";
 import { FaTrain } from "react-icons/fa";
-import { gameToLeafletStatic } from "@/components/meRedMCoord/mapCoords";
+import { gameToStaticMapPixel } from "@/components/meRedMCoord/mapCoords";
+import { useStaticTrainMapScale } from "@/components/train/StaticTrainMap";
 import {
   Coord3,
   distanceBetweenCoords,
@@ -35,76 +33,7 @@ export interface StationPinProps {
 }
 
 const PIN_GREEN = "#37c2af";
-
 const PIN_HIT_SIZE = 44;
-const PIN_VISUAL_SIZE = 22;
-
-const createTrainPinIcon = (
-  label: string,
-  selected = false,
-  disabled = false,
-  isPlayerHere = false,
-  tooltipContent: React.ReactNode | null = null,
-) => {
-  const color = disabled
-    ? "#6b6b6b"
-    : isPlayerHere
-      ? PIN_GREEN
-      : selected
-        ? "#ffffff"
-        : "#ffffff";
-  const iconMarkup = renderToStaticMarkup(
-    <div
-      className='train-pin-hit flex items-center justify-center'
-      style={{ width: PIN_HIT_SIZE, height: PIN_HIT_SIZE }}
-      role='button'
-      aria-label={label}
-    >
-      <div className='train-pin-inner relative w-[22px] h-[22px] pointer-events-none'>
-        <div
-          className='text-[8px] absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap px-1 rounded '
-          style={{
-            color,
-          }}
-        >
-          {label.toUpperCase()}
-        </div>
-        <FaTrain
-          style={{
-            color,
-            fontSize: "18px",
-            filter: "drop-shadow(0 0 2px rgba(0,0,0,0.9))",
-            opacity: disabled ? 0.6 : 1,
-          }}
-        />
-        {isPlayerHere ? (
-          <div
-            className='text-[8px] absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap'
-            style={{
-              color: PIN_GREEN,
-              textShadow: "0 0 3px rgba(0,0,0,0.9)",
-            }}
-          >
-            คุณอยู่ที่นี่{" "}
-          </div>
-        ) : null}
-      </div>
-      {tooltipContent ? (
-        <div className='train-pin-tooltip-static'>{tooltipContent}</div>
-      ) : null}
-    </div>,
-  );
-
-  const anchorY = PIN_HIT_SIZE / 2 + (isPlayerHere ? 3 : 0);
-
-  return L.divIcon({
-    html: iconMarkup,
-    className: `train-pin-icon${disabled ? " train-pin-disabled" : ""}`,
-    iconSize: [PIN_HIT_SIZE, PIN_HIT_SIZE],
-    iconAnchor: [PIN_HIT_SIZE / 2, anchorY],
-    popupAnchor: [0, -PIN_VISUAL_SIZE / 2],
-  });
-};
 
 const StationPin: React.FC<StationPinProps> = ({
   stationKey,
@@ -119,6 +48,14 @@ const StationPin: React.FC<StationPinProps> = ({
   onHoverEnd,
 }) => {
   const label = formatTrainStationLabel(stationKey);
+  const color = disabled
+    ? "#6b6b6b"
+    : isPlayerHere
+      ? PIN_GREEN
+      : selected
+        ? "#ffffff"
+        : "#ffffff";
+
   const tooltipContent = useMemo(() => {
     if (!currentStationLocation) return null;
     if (isPlayerHere) return "คุณอยู่ที่นี่";
@@ -154,40 +91,23 @@ const StationPin: React.FC<StationPinProps> = ({
     isPlayerHere,
     location.npcLocation,
   ]);
-  const icon = useMemo(
-    () =>
-      createTrainPinIcon(
-        label,
-        selected,
-        disabled,
-        isPlayerHere,
-        tooltipContent,
-      ),
-    [label, selected, disabled, isPlayerHere, tooltipContent],
-  );
+
   const { x, y } = location.npcLocation;
+  const mapScale = useStaticTrainMapScale();
+  const pinScreenScale = 1 / mapScale;
 
   const handleClick = useCallback(() => {
     if (disabled) return;
     onClick?.({ stationKey, label, location });
   }, [disabled, onClick, stationKey, label, location]);
 
-  const handleMouseOver = useCallback(() => {
+  const handleMouseEnter = useCallback(() => {
     onHoverStart?.(stationKey);
   }, [onHoverStart, stationKey]);
 
-  const handleMouseOut = useCallback(() => {
+  const handleMouseLeave = useCallback(() => {
     onHoverEnd?.();
   }, [onHoverEnd]);
-
-  const eventHandlers = useMemo(
-    () => ({
-      click: handleClick,
-      mouseover: handleMouseOver,
-      mouseout: handleMouseOut,
-    }),
-    [handleClick, handleMouseOver, handleMouseOut],
-  );
 
   if (
     x === undefined ||
@@ -198,12 +118,58 @@ const StationPin: React.FC<StationPinProps> = ({
     return null;
   }
 
+  const position = gameToStaticMapPixel(x, y);
+
   return (
-    <Marker
-      position={gameToLeafletStatic(x, y)}
-      icon={icon}
-      eventHandlers={eventHandlers}
-    />
+    <div
+      className={`train-pin absolute${disabled ? " train-pin-disabled" : ""}`}
+      style={{
+        left: position.x,
+        top: position.y,
+        transform: `translate(-50%, -50%) scale(${pinScreenScale})`,
+      }}
+      role='button'
+      aria-label={label}
+      onClick={handleClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div
+        className='train-pin-hit flex items-center justify-center'
+        style={{ width: PIN_HIT_SIZE, height: PIN_HIT_SIZE }}
+      >
+        <div className='train-pin-inner relative w-[22px] h-[22px] pointer-events-none'>
+          <div
+            className='text-[8px] absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap px-1 rounded'
+            style={{ color }}
+          >
+            {label.toUpperCase()}
+          </div>
+          <FaTrain
+            style={{
+              color,
+              fontSize: "18px",
+              filter: "drop-shadow(0 0 2px rgba(0,0,0,0.9))",
+              opacity: disabled ? 0.6 : 1,
+            }}
+          />
+          {isPlayerHere ? (
+            <div
+              className='text-[8px] absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap'
+              style={{
+                color: PIN_GREEN,
+                textShadow: "0 0 3px rgba(0,0,0,0.9)",
+              }}
+            >
+              คุณอยู่ที่นี่
+            </div>
+          ) : null}
+        </div>
+        {tooltipContent ? (
+          <div className='train-pin-tooltip-static'>{tooltipContent}</div>
+        ) : null}
+      </div>
+    </div>
   );
 };
 

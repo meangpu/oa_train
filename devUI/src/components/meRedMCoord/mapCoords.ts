@@ -66,6 +66,59 @@ export const STATIC_MAP_VIEW_OFFSET: MapViewOffset = {
   y: 0,
 };
 
+export const gameToLeafletStatic = (
+  x: number,
+  y: number,
+): { lat: number; lng: number; } => {
+  const validX = Number.isNaN(x) || x === undefined ? 0 : x;
+  const validY = Number.isNaN(y) || y === undefined ? 0 : y;
+
+  const lng =
+    ((validX - GAME_MIN_X) / GAME_RANGE_X) * STATIC_MAP_IMAGE.width;
+  const normalizedY = (validY - GAME_MIN_Y) / GAME_RANGE_Y;
+  const lat =
+    -STATIC_MAP_IMAGE.height + normalizedY * STATIC_MAP_IMAGE.height;
+  return { lat, lng };
+};
+
+export const getStaticMapScale = (zoom = STATIC_MAP_ZOOM) => Math.pow(2, zoom);
+
+/** Map game coords to pixel position on the static map image (top-left origin). */
+export const gameToStaticMapPixel = (
+  x: number,
+  y: number,
+): { x: number; y: number; } => {
+  const { lat, lng } = gameToLeafletStatic(x, y);
+  return { x: lng, y: -lat };
+};
+
+export interface StaticMapViewport {
+  scale: number;
+  translateX: number;
+  translateY: number;
+  width: number;
+  height: number;
+}
+
+export const getStaticMapLayerTransform = (
+  containerWidth: number,
+  containerHeight: number,
+  centerCoords: { x: number; y: number; } = STATIC_MAP_VIEW_CENTER,
+  offset: MapViewOffset = STATIC_MAP_VIEW_OFFSET,
+  zoom = STATIC_MAP_ZOOM,
+): StaticMapViewport => {
+  const scale = getStaticMapScale(zoom);
+  const center = gameToStaticMapPixel(centerCoords.x, centerCoords.y);
+
+  return {
+    scale,
+    translateX: containerWidth / 2 - center.x * scale + offset.x,
+    translateY: containerHeight / 2 - center.y * scale + offset.y,
+    width: STATIC_MAP_IMAGE.width,
+    height: STATIC_MAP_IMAGE.height,
+  };
+};
+
 export const gameToLeaflet = (
   x: number,
   y: number
@@ -84,22 +137,7 @@ export const gameToLeaflet = (
 export const mapCenterToLeaflet = () =>
   gameToLeaflet(MAP_CENTER_COORDS.x, MAP_CENTER_COORDS.y);
 
-export const gameToLeafletStatic = (
-  x: number,
-  y: number
-): { lat: number; lng: number; } => {
-  const validX = Number.isNaN(x) || x === undefined ? 0 : x;
-  const validY = Number.isNaN(y) || y === undefined ? 0 : y;
-
-  const lng =
-    ((validX - GAME_MIN_X) / GAME_RANGE_X) * STATIC_MAP_IMAGE.width;
-  const normalizedY = (validY - GAME_MIN_Y) / GAME_RANGE_Y;
-  const lat =
-    -STATIC_MAP_IMAGE.height + normalizedY * STATIC_MAP_IMAGE.height;
-  return { lat, lng };
-};
-
 export const staticMapCenterToLeaflet = (
-  center = STATIC_MAP_VIEW_CENTER
+  center = STATIC_MAP_VIEW_CENTER,
 ) => gameToLeafletStatic(center.x, center.y);
 

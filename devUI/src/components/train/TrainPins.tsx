@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import { Polyline } from "react-leaflet";
-import { gameToLeafletStatic } from "@/components/meRedMCoord/mapCoords";
+import { gameToStaticMapPixel, STATIC_MAP_IMAGE } from "@/components/meRedMCoord/mapCoords";
+import { useStaticTrainMapScale } from "@/components/train/StaticTrainMap";
 import useGlobalVar from "@/services/GlobalVar";
 import {
   findClosestStationKey,
@@ -40,7 +40,11 @@ const TrainPins: React.FC<TrainPinsProps> = ({
     ? formatTrainStationLabel(closestStationKey)
     : null;
 
-  const routeLinePositions = useMemo(() => {
+  const mapScale = useStaticTrainMapScale();
+  const lineStroke = 2 / mapScale;
+  const lineDash = `${8 / mapScale} ${6 / mapScale}`;
+
+  const routeLine = useMemo(() => {
     if (
       !hoveredStationKey ||
       !closestStationKey ||
@@ -53,12 +57,10 @@ const TrainPins: React.FC<TrainPinsProps> = ({
     const to = trainLocations[hoveredStationKey]?.npcLocation;
     if (!from || !to) return null;
 
-    const fromPos = gameToLeafletStatic(from.x, from.y);
-    const toPos = gameToLeafletStatic(to.x, to.y);
-    return [
-      [fromPos.lat, fromPos.lng],
-      [toPos.lat, toPos.lng],
-    ] as [number, number][];
+    return {
+      from: gameToStaticMapPixel(from.x, from.y),
+      to: gameToStaticMapPixel(to.x, to.y),
+    };
   }, [hoveredStationKey, closestStationKey, trainLocations]);
 
   const handleHoverStart = useCallback((stationKey: string) => {
@@ -78,16 +80,24 @@ const TrainPins: React.FC<TrainPinsProps> = ({
 
   return (
     <>
-      {routeLinePositions ? (
-        <Polyline
-          positions={routeLinePositions}
-          pathOptions={{
-            color: ROUTE_LINE_COLOR,
-            weight: 2,
-            opacity: 0.9,
-            dashArray: "8 6",
-          }}
-        />
+      {routeLine ? (
+        <svg
+          className='train-route-line absolute inset-0 pointer-events-none'
+          width={STATIC_MAP_IMAGE.width}
+          height={STATIC_MAP_IMAGE.height}
+          viewBox={`0 0 ${STATIC_MAP_IMAGE.width} ${STATIC_MAP_IMAGE.height}`}
+        >
+          <line
+            x1={routeLine.from.x}
+            y1={routeLine.from.y}
+            x2={routeLine.to.x}
+            y2={routeLine.to.y}
+            stroke={ROUTE_LINE_COLOR}
+            strokeWidth={lineStroke}
+            strokeOpacity={0.9}
+            strokeDasharray={lineDash}
+          />
+        </svg>
       ) : null}
       {Object.entries(trainLocations).map(([stationKey, location]) => (
         <StationPin
