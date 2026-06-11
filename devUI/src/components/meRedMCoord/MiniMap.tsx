@@ -178,6 +178,13 @@ const MiniMap = React.memo(
       const playerLocation = useGlobalVar((state) => state.playerLocation);
       const shouldShowPlayerLocation =
         showPlayerLocation && isValidCoords(playerLocation);
+      const showDestinationMarker =
+        !shouldShowPlayerLocation ||
+        !coords ||
+        coordsChanged(
+          { x: playerLocation.x, y: playerLocation.y },
+          coords
+        );
 
       useImperativeHandle(
         ref,
@@ -276,11 +283,13 @@ const MiniMap = React.memo(
                 bounds={mapBoundary}
               />
               <MapController coords={coords} onMapReady={handleMapReady} />
-              <Marker
-                position={gameToLeaflet(coords.x, coords.y)}
-                icon={icon}
-                ref={handleMarkerRef}
-              />
+              {showDestinationMarker ? (
+                <Marker
+                  position={gameToLeaflet(coords.x, coords.y)}
+                  icon={icon}
+                  ref={handleMarkerRef}
+                />
+              ) : null}
               {shouldShowPlayerLocation ? (
                 <Marker
                   position={gameToLeaflet(playerLocation.x, playerLocation.y)}
