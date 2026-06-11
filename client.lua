@@ -248,7 +248,6 @@ end)
 --========================================
 --  Commands
 --========================================
-
 RegisterCommand("t_coord_check", function(source, args, rawCommand)
     local location = vector3(-5534.63, -2930.89, -1.935)
     local distance = GetPlayerDistanceToPos(location)
