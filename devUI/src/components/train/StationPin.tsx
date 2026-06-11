@@ -131,7 +131,6 @@ const StationPin: React.FC<StationPinProps> = ({
         transform: `translate(-50%, -50%) scale(${pinScreenScale})`,
       }}
       role='button'
-      aria-label={label}
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -151,7 +150,6 @@ const StationPin: React.FC<StationPinProps> = ({
             style={{
               color,
               fontSize: "18px",
-              filter: "drop-shadow(0 0 2px rgba(0,0,0,0.9))",
               opacity: disabled ? 0.6 : 1,
             }}
           />
@@ -160,7 +158,6 @@ const StationPin: React.FC<StationPinProps> = ({
               className='text-[8px] absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap'
               style={{
                 color: PIN_GREEN,
-                textShadow: "0 0 3px rgba(0,0,0,0.9)",
               }}
             >
               คุณอยู่ที่นี่
