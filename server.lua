@@ -241,7 +241,7 @@ RegisterCommand("train_cooldown", function(source, args, rawCommand)
     if secondsLeft > 0 then
         NotifyPlayer(
             _source,
-            ("ใช้งานรถไฟได้อีกครั้งใน %s"):format(formatCooldownRemaining(secondsLeft))
+            ("ใช้งานรถไฟได้อีกครั้งใน <green>%s</green>"):format(formatCooldownRemaining(secondsLeft))
         )
     else
         NotifyPlayer(_source, "คุณสามารถใช้งานรถไฟได้แล้ว")
