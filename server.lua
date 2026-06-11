@@ -1,6 +1,7 @@
 local scriptName = GetCurrentResourceName()
 local vorpCore = exports.vorp_core:GetCore()
 local vorpInventory = exports.vorp_inventory:vorp_inventoryApi()
+local teleportCooldownBySteamHex = {}
 
 AddEventHandler("onResourceStart", function(resource)
     if scriptName ~= resource then return end
@@ -11,6 +12,55 @@ local function eventName(name) return ('%s:%s'):format(scriptName, name) end
 local function NotifyPlayer(source, message) TriggerClientEvent("vorp:TipRight", source, message) end
 local function LogDataDog(message, source) TriggerEvent('oa_logs:sendtodiscord', scriptName, message, source) end
 
+
+local function getPlayerSteamHex(Character)
+    return Character and Character.identifier or nil
+end
+
+local function getPlayerCooldownMs(_source, Character)
+    return Config.WaitTime.default
+end
+
+local function getCooldownSecondsLeft(steamHex)
+    local finishAt = teleportCooldownBySteamHex[steamHex]
+    if not finishAt then return 0 end
+
+    local secondsLeft = finishAt - os.time()
+    if secondsLeft <= 0 then
+        teleportCooldownBySteamHex[steamHex] = nil
+        return 0
+    end
+
+    return secondsLeft
+end
+
+local function isOnCooldown(steamHex)
+    return getCooldownSecondsLeft(steamHex) > 0
+end
+
+local function setCooldown(steamHex, cooldownMs)
+    if not steamHex then return end
+    local cooldownSeconds = math.ceil((tonumber(cooldownMs) or 0) / 1000)
+    if cooldownSeconds < 1 then return end
+    teleportCooldownBySteamHex[steamHex] = os.time() + cooldownSeconds
+end
+
+local function formatCooldownRemaining(seconds)
+    seconds = math.ceil(tonumber(seconds) or 0)
+    if seconds <= 0 then return "0 วินาที" end
+
+    local hours = math.floor(seconds / 3600)
+    local minutes = math.floor((seconds % 3600) / 60)
+    local secs = seconds % 60
+
+    if hours > 0 then
+        return string.format("%d ชม. %d นาที", hours, minutes)
+    end
+    if minutes > 0 then
+        return string.format("%d นาที %d วินาที", minutes, secs)
+    end
+    return string.format("%d วินาที", secs)
+end
 
 local function GetDistanceBetweenCoords(a, b)
     local dx = a.x - b.x
@@ -126,6 +176,21 @@ RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationK
     end
 
     local Character = User.getUsedCharacter
+    local steamHex = getPlayerSteamHex(Character)
+    if not steamHex then
+        NotifyPlayer(_source, "ไม่พบข้อมูลผู้เล่น")
+        return
+    end
+
+    if isOnCooldown(steamHex) then
+        local secondsLeft = getCooldownSecondsLeft(steamHex)
+        NotifyPlayer(
+            _source,
+            ("รถไฟพร้อมใช้งานอีกครั้งใน %s"):format(formatCooldownRemaining(secondsLeft))
+        )
+        return
+    end
+
     local playerMoney = Character.money or 0
     if playerMoney < details.cost then
         NotifyPlayer(_source, "คุณมีเงินไม่พอ")
@@ -135,6 +200,8 @@ RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationK
     if details.cost > 0 then
         Character.removeCurrency(0, details.cost)
     end
+
+    setCooldown(steamHex, getPlayerCooldownMs(_source, Character))
 
     TriggerClientEvent(eventName("TeleportToStationApproved"), _source, {
         toStationKey = toStationKey,
