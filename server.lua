@@ -10,7 +10,10 @@ end)
 
 local function eventName(name) return ('%s:%s'):format(scriptName, name) end
 local function NotifyPlayer(source, message) TriggerClientEvent("vorp:TipRight", source, message) end
-local function LogDataDog(message, source) TriggerEvent('oa_logs:sendtodiscord', scriptName, message, source) end
+local function LogDataDog(message, source)
+    print(message)
+    TriggerEvent('oa_logs:sendtodiscord', scriptName, message, source)
+end
 
 
 local function getPlayerSteamHex(Character)
@@ -176,6 +179,7 @@ RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationK
     end
 
     local Character = User.getUsedCharacter
+    local playerName = (Character.firstname or "unknown") .. " " .. (Character.lastname or "unknown")
     local steamHex = getPlayerSteamHex(Character)
     if not steamHex then
         NotifyPlayer(_source, "ไม่พบข้อมูลผู้เล่น")
@@ -186,7 +190,7 @@ RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationK
         local secondsLeft = getCooldownSecondsLeft(steamHex)
         NotifyPlayer(
             _source,
-            ("รถไฟพร้อมใช้งานอีกครั้งใน %s"):format(formatCooldownRemaining(secondsLeft))
+            ("คุณใช้งานรถไฟได้อีกครั้งใน %s"):format(formatCooldownRemaining(secondsLeft))
         )
         return
     end
@@ -202,6 +206,20 @@ RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationK
     end
 
     setCooldown(steamHex, getPlayerCooldownMs(_source, Character))
+
+    local fromLabel = Config.Location[fromStationKey].label or fromStationKey
+    local toLabel = Config.Location[toStationKey].label or toStationKey
+    LogDataDog(
+        ("%s รถไฟ %s -> %s | cost: $%d | wait: %d sec"):format(
+            playerName,
+            fromLabel,
+            toLabel,
+            details.cost,
+            details.waitSeconds
+        ),
+        _source
+    )
+
     TriggerClientEvent(eventName("TeleportToStationApproved"), _source, {
         toStationKey = toStationKey,
         waitSeconds = details.waitSeconds,

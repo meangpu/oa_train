@@ -71,7 +71,6 @@ end
 local function findClosestStationKey(playerCoords)
     local closestKey = nil
     local minDistSq = math.huge
-
     for key, location in pairs(Config.Location) do
         local npc = location.npcLocation
         local dx = playerCoords.x - npc.x
@@ -95,13 +94,11 @@ local function SentPlayerMoneyToUI()
     })
 end
 
-
 local function SendPlayerLocationToUI()
     -- {"x":-1644.4381103515626,"y":-1393.212646484375,"z":83.19735717773438}
     local pCoord = GetEntityCoords(PlayerPedId())
     SendNUIMessage({ type = "SetPlayerLocation", playerLocation = pCoord, })
 end
-
 
 local function CloseUI()
     SendNUIMessage({ type = "CloseUI" })
