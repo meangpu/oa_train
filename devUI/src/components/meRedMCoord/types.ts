@@ -13,6 +13,7 @@ export interface MiniMapProps {
   width?: string;
   className?: string;
   showPlayerLocation?: boolean;
+  showDestinationMarker?: boolean;
   children?: ReactNode;
 }
 

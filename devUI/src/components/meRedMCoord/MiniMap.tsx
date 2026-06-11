@@ -18,10 +18,7 @@ import { gameToLeaflet } from "./mapCoords";
 
 const DEFAULT_ZOOM = 3;
 
-const mapBoundary = L.latLngBounds(
-  [-144, 0],
-  [0, 176]
-);
+const mapBoundary = L.latLngBounds([-144, 0], [0, 176]);
 
 const isValidCoords = (coords: { x: number; y: number } | undefined) => {
   if (!coords) return false;
@@ -33,7 +30,7 @@ const isValidCoords = (coords: { x: number; y: number } | undefined) => {
 const coordsChanged = (
   prev: { x: number; y: number } | null,
   next: { x: number; y: number },
-  threshold = 0.01
+  threshold = 0.01,
 ) => {
   if (!prev) return true;
   return (
@@ -136,7 +133,7 @@ const createCustomIcon = () => {
           fontSize: "20px",
         }}
       />
-    </div>
+    </div>,
   );
 
   return L.divIcon({
@@ -161,7 +158,7 @@ const createPlayerIcon = () => {
       <div className='text-[9px] text-green-light absolute -bottom-2.5 -left-1 w-50'>
         คุณ
       </div>
-    </div>
+    </div>,
   );
 
   return L.divIcon({
@@ -181,14 +178,15 @@ const MiniMap = React.memo(
         width = "w-full",
         className = "",
         showPlayerLocation = true,
+        showDestinationMarker: showDestinationMarkerProp = true,
         children,
       },
-      ref
+      ref,
     ) => {
       const mapRef = useRef<L.Map | null>(null);
       const markerRef = useRef<L.Marker | null>(null);
       const lastCoords = useRef<{ x: number; y: number; z: number } | null>(
-        null
+        null,
       );
       const icon = useMemo(() => createCustomIcon(), []);
       const playerIcon = useMemo(() => createPlayerIcon(), []);
@@ -196,12 +194,10 @@ const MiniMap = React.memo(
       const shouldShowPlayerLocation =
         showPlayerLocation && isValidCoords(playerLocation);
       const showDestinationMarker =
-        !shouldShowPlayerLocation ||
-        !coords ||
-        coordsChanged(
-          { x: playerLocation.x, y: playerLocation.y },
-          coords
-        );
+        showDestinationMarkerProp &&
+        (!shouldShowPlayerLocation ||
+          !coords ||
+          coordsChanged({ x: playerLocation.x, y: playerLocation.y }, coords));
 
       useImperativeHandle(
         ref,
@@ -222,7 +218,7 @@ const MiniMap = React.memo(
                 lastCoords.current
                   ? { x: lastCoords.current.x, y: lastCoords.current.y }
                   : null,
-                newCoords
+                newCoords,
               );
 
               if (!shouldUpdatePosition) {
@@ -234,7 +230,7 @@ const MiniMap = React.memo(
 
               mapRef.current.setView(
                 [mapCoords.lat, mapCoords.lng],
-                DEFAULT_ZOOM
+                DEFAULT_ZOOM,
               );
 
               if (markerRef.current) {
@@ -247,7 +243,7 @@ const MiniMap = React.memo(
             }
           },
         }),
-        []
+        [],
       );
 
       const handleMapReady = useCallback((map: L.Map) => {
@@ -283,8 +279,8 @@ const MiniMap = React.memo(
             <MapContainer
               center={[0, 0]}
               zoom={DEFAULT_ZOOM}
-              minZoom={2}
-              maxZoom={7}
+              minZoom={3}
+              maxZoom={3}
               maxBounds={mapBoundary}
               maxBoundsViscosity={1}
               className='h-full w-full relative z-10'
@@ -333,8 +329,8 @@ const MiniMap = React.memo(
           </div>
         );
       }
-    }
-  )
+    },
+  ),
 );
 
 MiniMap.displayName = "MiniMap";

@@ -11,9 +11,10 @@ const MainPage: React.FC = () => {
       เลือกสถานีที่คุณต้องการไป
       <MiniMap
         coords={playerLocation}
-        height='h-[530px]'
-        width='w-[944px]'
-        showPlayerLocation
+        height='h-[795px]'
+        width='w-[1416px]'
+        showPlayerLocation={false}
+        showDestinationMarker={false}
       >
         <TrainPins />
       </MiniMap>
