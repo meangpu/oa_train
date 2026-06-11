@@ -27,6 +27,16 @@ local freezeControlsToEnable = {
 AddEventHandler("onClientResourceStart", function(resource)
     if scriptName ~= resource then return end
     print(scriptName .. ": client start")
+    for k, v in pairs(Config.Location) do
+        CreateBlipMapIcon(v)
+    end
+end)
+
+AddEventHandler("onResourceStop", function(resource)
+    if scriptName ~= resource then return end
+    for _, blip in pairs(BlipData) do
+        if blip then RemoveBlip(blip) end
+    end
 end)
 
 --========================================
@@ -38,6 +48,7 @@ local function NotifyPlayer(message) TriggerEvent("vorp:TipRight", message) end
 local function GetPlayerDistanceToPos(pos) return #(GetEntityCoords(PlayerPedId()) - pos) end
 
 local function CreateBlipMapIcon(location)
+    print(json.encode(location, { indent = true }))
     local blip = BlipAddForCoords(Config.BlipIcon, location.npcLocation.x, location.npcLocation.y,
         location.npcLocation.z)
     SetBlipSprite(blip, Config.BlipIcon)
@@ -245,7 +256,6 @@ RegisterNUICallback("NUILoaded", function(_, cb)
     cb('ok')
 end)
 
-
 CreateThread(function()
     while true do
         if isWaitTeleport and waitTeleportSecondsLeft > 0 and waitTeleportDrawCoords then
@@ -281,7 +291,7 @@ CreateThread(function()
     end
 end)
 
-Citizen.CreateThread(function()
+CreateThread(function()
     while true do
         if IsControlJustPressed(0, GetHashKey("INPUT_AIM_IN_AIR")) then -- key u INPUT_AIM_IN_AIR
             -- ToggleUI()
