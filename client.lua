@@ -195,14 +195,6 @@ local function ApplyLimitedControls(enableList)
     end
 end
 
-local function ToggleUI()
-    if isOpenUI then
-        CloseUI()
-    else
-        OpenUI()
-    end
-end
-
 local function PlayUIAudio(audioName)
     SendNUIMessage({ type = "PlayAudio", audioName = audioName })
 end
@@ -346,19 +338,5 @@ end)
 --========================================
 --  Commands
 --========================================
-RegisterCommand("t_coord_check", function(source, args, rawCommand)
-    local location = vector3(-5534.63, -2930.89, -1.935)
-    local distance = GetPlayerDistanceToPos(location)
-    NotifyPlayer("t_coord_check: " .. distance)
-end, false)
-
 RegisterCommand("train_close", CloseUI, false)
-RegisterCommand("train_open", OpenUI, false)
-RegisterCommand("train_teleport", function(_, args)
-    local locationKey = args[1]
-    if not locationKey then
-        NotifyPlayer("Usage: /train_teleport ANNESBURG")
-        return
-    end
-    TeleportToStation(locationKey)
-end, false)
+-- RegisterCommand("train_open", OpenUI, false)
