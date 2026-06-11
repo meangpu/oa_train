@@ -27,6 +27,10 @@ const TrainPins: React.FC<TrainPinsProps> = ({
   const trainLocations = useGlobalVar((state) => state.trainLocations);
   const playerLocation = useGlobalVar((state) => state.playerLocation);
   const playerMoney = useGlobalVar((state) => state.playerMoney);
+  const userCooldownSecondsLeft = useGlobalVar(
+    (state) => state.userCooldownSecondsLeft,
+  );
+  const isOnUserCooldown = userCooldownSecondsLeft > 0;
   const [hoveredStationKey, setHoveredStationKey] = useState<string | null>(
     null,
   );
@@ -109,7 +113,9 @@ const TrainPins: React.FC<TrainPinsProps> = ({
           stationKey={stationKey}
           location={location}
           selected={selectedStation === stationKey}
-          disabled={disabledStations.includes(stationKey)}
+          disabled={
+            isOnUserCooldown || disabledStations.includes(stationKey)
+          }
           isPlayerHere={closestStationKey === stationKey}
           currentStationLocation={currentStationLocation}
           currentStationLabel={currentStationLabel}

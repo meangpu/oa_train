@@ -1,5 +1,6 @@
 local isOpenUI = false
 local scriptName = GetCurrentResourceName()
+local pendingUserCooldownCb = nil
 local isWaitTeleport = false
 local waitTeleportSecondsLeft = 0
 local waitTeleportDrawCoords = nil
@@ -94,6 +95,18 @@ local function SentPlayerMoneyToUI()
     })
 end
 
+local function SendUserCooldownToUI(secondsLeft)
+    secondsLeft = math.max(0, math.floor(tonumber(secondsLeft) or 0))
+    SendNUIMessage({
+        type = "SetUserCooldown",
+        secondsLeft = secondsLeft,
+    })
+end
+
+local function RequestUserCooldownFromServer()
+    TriggerServerEvent(eventName("RequestUserCooldown"))
+end
+
 local function SendPlayerLocationToUI()
     -- {"x":-1644.4381103515626,"y":-1393.212646484375,"z":83.19735717773438}
     local pCoord = GetEntityCoords(PlayerPedId())
@@ -109,6 +122,7 @@ end
 local function OpenUI()
     SentPlayerMoneyToUI()
     SendPlayerLocationToUI()
+    RequestUserCooldownFromServer()
     SetNuiFocus(true, true)
     SetNuiFocusKeepInput(true)
     SendNUIMessage({ type = "OpenUI" })
@@ -270,6 +284,20 @@ RegisterNetEvent("oa_lib:forceCloseNuiFocus", function()
     CloseUI()
 end)
 
+RegisterNetEvent(eventName("ReceiveUserCooldown"), function(secondsLeft)
+    secondsLeft = math.max(0, math.floor(tonumber(secondsLeft) or 0))
+    SendUserCooldownToUI(secondsLeft)
+
+    if pendingUserCooldownCb then
+        local cb = pendingUserCooldownCb
+        pendingUserCooldownCb = nil
+        cb({
+            success = true,
+            data = { secondsLeft = secondsLeft },
+        })
+    end
+end)
+
 RegisterNetEvent(eventName("TeleportToStationApproved"), function(data)
     if not data or not data.toStationKey then return end
     if isWaitTeleport then return end
@@ -332,6 +360,27 @@ RegisterNUICallback("NUILoaded", function(_, cb)
         locations = Config.Location,
     })
     cb('ok')
+end)
+
+RegisterNUICallback("RequestUserCooldown", function(_, cb)
+    if pendingUserCooldownCb then
+        cb({ success = false })
+        return
+    end
+
+    pendingUserCooldownCb = cb
+    RequestUserCooldownFromServer()
+
+    SetTimeout(3000, function()
+        if not pendingUserCooldownCb then return end
+
+        local staleCb = pendingUserCooldownCb
+        pendingUserCooldownCb = nil
+        staleCb({
+            success = true,
+            data = { secondsLeft = 0 },
+        })
+    end)
 end)
 
 CreateThread(function()

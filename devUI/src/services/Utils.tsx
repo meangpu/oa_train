@@ -67,6 +67,23 @@ export function formatTravelCostText(distance: number): ReactNode {
   );
 }
 
+export function formatCooldownRemaining(seconds: number): string {
+  const total = Math.max(0, Math.ceil(seconds));
+  if (total <= 0) return "0 วินาที";
+
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const secs = total % 60;
+
+  if (hours > 0) {
+    return `${hours} ชม. ${minutes} นาที`;
+  }
+  if (minutes > 0) {
+    return `${minutes} นาที ${secs} วินาที`;
+  }
+  return `${secs} วินาที`;
+}
+
 export function formatWaitTimeText(distance: number): ReactNode {
   const seconds = getWaitTimeSeconds(getTravelCost(distance));
   return (

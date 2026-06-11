@@ -4,9 +4,11 @@ import { gameToStaticMapPixel } from "@/components/meRedMCoord/mapCoords";
 import { useStaticTrainMapScale } from "@/components/train/StaticTrainMap";
 import useGlobalModal from "@/services/GlobalModal";
 import { NuiProxy } from "@/services/NuiProxy";
+import useGlobalVar from "@/services/GlobalVar";
 import {
   Coord3,
   distanceBetweenCoords,
+  formatCooldownRemaining,
   formatDistanceText,
   formatTrainStationLabel,
   formatWaitTimeText,
@@ -123,8 +125,14 @@ const StationPin: React.FC<StationPinProps> = ({
   const mapScale = useStaticTrainMapScale();
   const pinScreenScale = 1 / mapScale;
 
+  const userCooldownSecondsLeft = useGlobalVar(
+    (state) => state.userCooldownSecondsLeft,
+  );
+
   const handleClick = useCallback(() => {
     if (disabled || isPlayerHere) return;
+
+    if (userCooldownSecondsLeft > 0) return;
 
     const fromLabel = currentStationLabel ?? "สถานีปัจจุบัน";
     const toLabel = label;
@@ -177,10 +185,18 @@ const StationPin: React.FC<StationPinProps> = ({
           >
             ยกเลิก
           </button>
+          {userCooldownSecondsLeft > 0 ? (
+            <div className='text-center text-sm text-red-light'>
+              ใช้งานรถไฟได้อีกครั้งใน{" "}
+              <span className='font-extrabold text-red'>
+                {formatCooldownRemaining(userCooldownSecondsLeft)}
+              </span>
+            </div>
+          ) : null}
           <button
             type='button'
             className='btn-green me-p-sm'
-            disabled={!canAfford}
+            disabled={!canAfford || userCooldownSecondsLeft > 0}
             onClick={() => {
               hideModal();
               void NuiProxy.call("TeleportToStation", {
@@ -208,6 +224,7 @@ const StationPin: React.FC<StationPinProps> = ({
     onClick,
     playerMoney,
     stationKey,
+    userCooldownSecondsLeft,
   ]);
 
   const handleMouseEnter = useCallback(() => {

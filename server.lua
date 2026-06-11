@@ -15,7 +15,6 @@ local function LogDataDog(message, source)
     TriggerEvent('oa_logs:sendtodiscord', scriptName, message, source)
 end
 
-
 local function getPlayerSteamHex(Character)
     return Character and Character.identifier or nil
 end
@@ -188,6 +187,7 @@ RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationK
 
     if isOnCooldown(steamHex) then
         local secondsLeft = getCooldownSecondsLeft(steamHex)
+        TriggerClientEvent(eventName("ReceiveUserCooldown"), _source, secondsLeft)
         NotifyPlayer(
             _source,
             ("คุณใช้งานรถไฟได้อีกครั้งใน %s"):format(formatCooldownRemaining(secondsLeft))
@@ -206,6 +206,7 @@ RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationK
     end
 
     setCooldown(steamHex, getPlayerCooldownMs(_source, Character))
+    TriggerClientEvent(eventName("ReceiveUserCooldown"), _source, getCooldownSecondsLeft(steamHex))
 
     local fromLabel = Config.Location[fromStationKey].label or fromStationKey
     local toLabel = Config.Location[toStationKey].label or toStationKey
@@ -226,6 +227,22 @@ RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationK
         cost = details.cost,
     })
 end)
+RegisterServerEvent(eventName("RequestUserCooldown"), function()
+    local _source = source
+    local User = vorpCore.getUser(_source)
+    if not User or not User.getUsedCharacter then
+        TriggerClientEvent(eventName("ReceiveUserCooldown"), _source, 0)
+        return
+    end
+
+    local steamHex = getPlayerSteamHex(User.getUsedCharacter)
+    TriggerClientEvent(
+        eventName("ReceiveUserCooldown"),
+        _source,
+        getCooldownSecondsLeft(steamHex)
+    )
+end)
+
 --==========================
 --  Commands
 --==========================
