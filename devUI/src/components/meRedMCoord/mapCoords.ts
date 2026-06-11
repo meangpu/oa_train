@@ -62,7 +62,7 @@ export interface MapViewOffset {
 }
 
 export const STATIC_MAP_VIEW_OFFSET: MapViewOffset = {
-  x: -60,
+  x: -76,
   y: 0,
 };
 
