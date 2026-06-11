@@ -202,7 +202,6 @@ RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationK
     end
 
     setCooldown(steamHex, getPlayerCooldownMs(_source, Character))
-
     TriggerClientEvent(eventName("TeleportToStationApproved"), _source, {
         toStationKey = toStationKey,
         waitSeconds = details.waitSeconds,

@@ -394,7 +394,7 @@ CreateThread(function()
                     break
                 end
             end
-            if nearNpc then
+            if nearNpc and not isWaitTeleport then
                 exports["oa_helptext"]:Help('กด R เพื่อดูรายการสถานีรถไฟ')
                 if IsControlJustPressed(0, Config.InteractionKey) then
                     OpenUI()
