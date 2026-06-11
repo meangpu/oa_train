@@ -2,6 +2,7 @@ import React, { useCallback, useMemo } from "react";
 import { FaTrain } from "react-icons/fa";
 import { gameToStaticMapPixel } from "@/components/meRedMCoord/mapCoords";
 import { useStaticTrainMapScale } from "@/components/train/StaticTrainMap";
+import useGlobalModal from "@/services/GlobalModal";
 import { NuiProxy } from "@/services/NuiProxy";
 import {
   Coord3,
@@ -10,6 +11,8 @@ import {
   formatTrainStationLabel,
   formatTravelCostText,
   formatWaitTimeText,
+  getTravelCost,
+  getWaitTimeSeconds,
   isValidCoord3,
 } from "@/services/Utils";
 import { TrainStationLocation } from "@/types/TrainConfig";
@@ -99,9 +102,92 @@ const StationPin: React.FC<StationPinProps> = ({
 
   const handleClick = useCallback(() => {
     if (disabled || isPlayerHere) return;
-    void NuiProxy.call("TeleportToStation", { locationKey: stationKey });
-    onClick?.({ stationKey, label, location });
-  }, [disabled, isPlayerHere, onClick, stationKey, label, location]);
+
+    const fromLabel = currentStationLabel ?? "สถานีปัจจุบัน";
+    const toLabel = label;
+
+    let cost = 0;
+    let waitSeconds = 0;
+    if (
+      currentStationLocation &&
+      isValidCoord3(currentStationLocation) &&
+      isValidCoord3(location.npcLocation)
+    ) {
+      const distance = distanceBetweenCoords(
+        currentStationLocation,
+        location.npcLocation,
+      );
+      cost = getTravelCost(distance);
+      waitSeconds = getWaitTimeSeconds(cost);
+    }
+
+    const { showModal, hideModal } = useGlobalModal.getState();
+
+    showModal(
+      <div className='flex flex-col gap-1 bg-bg-black-opacity p-4 rounded-lg min-w-[300px]'>
+        <p className='text-center '>เดินทางจาก</p>
+        <div className='text-center flex-center gap-1'>
+          <span className='text-white font-extrabold bg-grey-more-more px-1 rounded'>
+            {fromLabel}
+          </span>
+          {"ไป"}
+          <span className='text-white font-extrabold bg-grey-more-more px-1 rounded'>
+            {toLabel}
+          </span>
+        </div>
+        <div className='flex flex-col items-center gap-1 text-sm'>
+          <div>
+            ค่าเดินทาง{" "}
+            <span className='text-green-light font-extrabold'>
+              ${cost.toLocaleString()}
+            </span>
+          </div>
+          <div>
+            เวลารอ{" "}
+            <span className='text-green-light font-extrabold'>
+              {waitSeconds.toLocaleString()}
+            </span>{" "}
+            วินาที
+          </div>
+        </div>
+        <div className='flex justify-center gap-2 mt-4'>
+          <button
+            type='button'
+            className='btn-outline me-p-sm'
+            onClick={() => hideModal()}
+          >
+            ยกเลิก
+          </button>
+          <button
+            type='button'
+            className='btn-green me-p-sm'
+            onClick={() => {
+              hideModal();
+              void NuiProxy.call("TeleportToStation", {
+                locationKey: stationKey,
+              });
+              onClick?.({ stationKey, label, location });
+            }}
+          >
+            ยืนยัน
+          </button>
+        </div>
+      </div>,
+      {
+        closeOnClickEmpty: false,
+        closeBtnClass: "hidden",
+      },
+    );
+  }, [
+    disabled,
+    isPlayerHere,
+    currentStationLabel,
+    currentStationLocation,
+    label,
+    location,
+    onClick,
+    stationKey,
+  ]);
 
   const handleMouseEnter = useCallback(() => {
     onHoverStart?.(stationKey);
