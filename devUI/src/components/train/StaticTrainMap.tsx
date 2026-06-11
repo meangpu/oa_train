@@ -1,20 +1,46 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { MapContainer, ImageOverlay, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import {
-  LEAFLET_MAP_NE,
-  LEAFLET_MAP_SW,
-  MAP_ZOOM,
-  mapCenterToLeaflet,
+  gameToLeafletStatic,
+  MapViewOffset,
+  STATIC_MAP_NE,
+  STATIC_MAP_SW,
+  STATIC_MAP_VIEW_CENTER,
+  STATIC_MAP_VIEW_OFFSET,
+  STATIC_MAP_ZOOM,
 } from "@/components/meRedMCoord/mapCoords";
 import useGlobalVar from "@/services/GlobalVar";
 
 const MAP_IMAGE_URL = `${import.meta.env.BASE_URL}redmMap.webp`;
-const mapBoundary = L.latLngBounds(LEAFLET_MAP_SW, LEAFLET_MAP_NE);
-const mapCenter = mapCenterToLeaflet();
+const mapBoundary = L.latLngBounds(STATIC_MAP_SW, STATIC_MAP_NE);
+
+export interface MapCenterCoords {
+  x: number;
+  y: number;
+  z?: number;
+}
+
+const setMapViewWithOffset = (
+  map: L.Map,
+  center: { lat: number; lng: number },
+  zoom: number,
+  offset: MapViewOffset
+) => {
+  const latLng = L.latLng(center.lat, center.lng);
+  if (!offset.x && !offset.y) {
+    map.setView(latLng, zoom, { animate: false });
+    return;
+  }
+  const point = map.project(latLng, zoom).subtract([offset.x, offset.y]);
+  map.setView(map.unproject(point, zoom), zoom, { animate: false });
+};
 
 export interface StaticTrainMapProps {
+  centerCoords?: MapCenterCoords;
+  centerOffset?: MapViewOffset;
+  zoom?: number;
   height?: string;
   width?: string;
   className?: string;
@@ -26,20 +52,24 @@ const refreshMapSize = (map: L.Map) => {
   map.invalidateSize({ animate: false, pan: false });
 };
 
-const MapViewController: React.FC = () => {
+const MapViewController: React.FC<{
+  center: { lat: number; lng: number };
+  zoom: number;
+  offset: MapViewOffset;
+}> = ({ center, zoom, offset }) => {
   const map = useMap();
   const displayRoot = useGlobalVar((state) => state.displayRoot);
 
   const syncView = useCallback(() => {
     refreshMapSize(map);
-    map.setView([mapCenter.lat, mapCenter.lng], MAP_ZOOM, { animate: false });
+    setMapViewWithOffset(map, center, zoom, offset);
     map.dragging.disable();
     map.scrollWheelZoom.disable();
     map.doubleClickZoom.disable();
     map.boxZoom.disable();
     map.keyboard.disable();
     map.touchZoom.disable();
-  }, [map]);
+  }, [map, center.lat, center.lng, zoom, offset.x, offset.y]);
 
   useEffect(() => {
     syncView();
@@ -75,21 +105,29 @@ const MapViewController: React.FC = () => {
 };
 
 const StaticTrainMap: React.FC<StaticTrainMapProps> = ({
-  height = "h-[1152px]",
-  width = "w-[1408px]",
+  centerCoords = STATIC_MAP_VIEW_CENTER,
+  centerOffset = STATIC_MAP_VIEW_OFFSET,
+  zoom = STATIC_MAP_ZOOM,
+  height = "h-[720px]",
+  width = "w-[972px]",
   className = "",
   dimMapOverlay = true,
   children,
 }) => {
+  const mapCenter = useMemo(
+    () => gameToLeafletStatic(centerCoords.x, centerCoords.y),
+    [centerCoords.x, centerCoords.y]
+  );
+
   return (
     <div
       className={`static-train-map ${height} ${width} ${className} relative overflow-hidden select-none`}
     >
       <MapContainer
         center={[mapCenter.lat, mapCenter.lng]}
-        zoom={MAP_ZOOM}
-        minZoom={MAP_ZOOM}
-        maxZoom={MAP_ZOOM}
+        zoom={zoom}
+        minZoom={zoom}
+        maxZoom={zoom}
         maxBounds={mapBoundary}
         maxBoundsViscosity={1}
         crs={L.CRS.Simple}
@@ -103,7 +141,11 @@ const StaticTrainMap: React.FC<StaticTrainMapProps> = ({
         touchZoom={false}
       >
         <ImageOverlay url={MAP_IMAGE_URL} bounds={mapBoundary} />
-        <MapViewController />
+        <MapViewController
+          center={mapCenter}
+          zoom={zoom}
+          offset={centerOffset}
+        />
         {children}
       </MapContainer>
     </div>

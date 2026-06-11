@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { Polyline } from "react-leaflet";
-import { gameToLeaflet } from "@/components/meRedMCoord/mapCoords";
+import { gameToLeafletStatic } from "@/components/meRedMCoord/mapCoords";
 import useGlobalVar from "@/services/GlobalVar";
 import {
   findClosestStationKey,
@@ -53,8 +53,8 @@ const TrainPins: React.FC<TrainPinsProps> = ({
     const to = trainLocations[hoveredStationKey]?.npcLocation;
     if (!from || !to) return null;
 
-    const fromPos = gameToLeaflet(from.x, from.y);
-    const toPos = gameToLeaflet(to.x, to.y);
+    const fromPos = gameToLeafletStatic(from.x, from.y);
+    const toPos = gameToLeafletStatic(to.x, to.y);
     return [
       [fromPos.lat, fromPos.lng],
       [toPos.lat, toPos.lng],

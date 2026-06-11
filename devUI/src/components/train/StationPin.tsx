@@ -3,7 +3,7 @@ import { Marker, Tooltip } from "react-leaflet";
 import L from "leaflet";
 import { renderToStaticMarkup } from "react-dom/server";
 import { FaTrain } from "react-icons/fa";
-import { gameToLeaflet } from "@/components/meRedMCoord/mapCoords";
+import { gameToLeafletStatic } from "@/components/meRedMCoord/mapCoords";
 import {
   Coord3,
   distanceBetweenCoords,
@@ -160,7 +160,7 @@ const StationPin: React.FC<StationPinProps> = ({
 
   return (
     <Marker
-      position={gameToLeaflet(x, y)}
+      position={gameToLeafletStatic(x, y)}
       icon={icon}
       eventHandlers={{
         click: handleClick,

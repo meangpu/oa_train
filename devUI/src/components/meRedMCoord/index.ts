@@ -13,8 +13,14 @@ export type {
 export { parseVector3String } from "./types";
 export {
   gameToLeaflet,
+  gameToLeafletStatic,
   MAP_CENTER_COORDS,
   MAP_ZOOM,
   LEAFLET_MAP_BOUNDS,
+  STATIC_MAP_IMAGE,
+  STATIC_MAP_VIEW_CENTER,
+  STATIC_MAP_VIEW_OFFSET,
+  STATIC_MAP_ZOOM,
 } from "./mapCoords";
+export type { MapViewOffset } from "./mapCoords";
 
