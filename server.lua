@@ -77,24 +77,9 @@ end
 --==========================
 --  Event Handlers
 --==========================
-RegisterServerEvent(eventName("RequestClientData"), function()
-    local _source = source
-    local User = vorpCore.getUser(_source)
-    if not User or not User.getUsedCharacter then
-        TriggerClientEvent(eventName("ReceiveClientData"), _source, nil)
-        return
-    end
-    local Character = User.getUsedCharacter
-    local DataToSend = {
-        myName = (Character.firstname or "") .. " " .. (Character.lastname or ""),
-        steamHex = Character.identifier
-    }
-    TriggerClientEvent(eventName("ReceiveClientData"), _source, DataToSend)
-end)
 
 RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationKey, toStationKey)
     local _source = source
-
     fromStationKey = fromStationKey and string.upper(tostring(fromStationKey)) or nil
     toStationKey = toStationKey and string.upper(tostring(toStationKey)) or nil
 
@@ -174,46 +159,6 @@ RegisterCommand("t_addItem", function(source, args, rawCommand)
     local logword = ("เพิ่ม %sx%d"):format(itemName, itemCount)
     NotifyPlayer(_source, ("เพิ่ม %s <green-bg>x%d</green-bg>"):format(itemName, itemCount))
     LogDataDog(logword, _source)
-end, true)
-
-
-RegisterCommand("t_db_insert", function(source, args, rawCommand)
-    local data = args and args[1] or nil
-    local message = args and args[2] or nil
-    if not data or data == "" or not message or message == "" then
-        return print("t_db_insert usage: t_db_insert <data> <message>")
-    end
-    db.insertTestData(data, message, function(insertId)
-        print("t_db_insert: insertId=" .. tostring(insertId))
-    end)
-end, true)
-
-RegisterCommand("t_db_get", function(source, args, rawCommand)
-    local id = args and args[1] or nil
-    if not id or id == "" then return print("t_db_get usage: t_db_get <id>") end
-
-    db.getTestByID(id, function(row)
-        print("t_db_get: row=" .. (json and json.encode and json.encode(row) or tostring(row)))
-    end)
-end, true)
-
-RegisterCommand("t_db_update", function(source, args, rawCommand)
-    local id = args and args[1] or nil
-    local message = args and args[2] or nil
-    if not id or id == "" or not message or message == "" then
-        return print("t_db_update usage: t_db_update <id> <message>")
-    end
-    db.updateTestMessage(id, message, function(affected)
-        print("t_db_update: affected=" .. tostring(affected))
-    end)
-end, true)
-
-RegisterCommand("t_db_delete", function(source, args, rawCommand)
-    local id = args and args[1] or nil
-    if not id or id == "" then return print("t_db_delete usage: t_db_delete <id>") end
-    db.deleteTestId(id, function(affected)
-        print("t_db_delete: affected=" .. tostring(affected))
-    end)
 end, true)
 
 
