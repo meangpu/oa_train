@@ -81,6 +81,31 @@ local function ChangeUINavPage(page)
     SendNUIMessage({ type = "ChangeUINavPage", page = page })
 end
 
+local function TeleportToLocation(loc)
+    DoScreenFadeOut(1000)
+    while IsScreenFadingOut() do
+        Wait(0)
+    end
+    local ped = PlayerPedId()
+    SetEntityCoords(ped, loc.x, loc.y, loc.z, true, true, false, false)
+    if loc.w then
+        SetEntityHeading(ped, loc.w)
+    end
+    Wait(2000)
+    DoScreenFadeIn(1000)
+end
+
+local function TeleportToStation(locationKey)
+    local station = Config.Location[string.upper(locationKey)]
+    if not station then
+        NotifyPlayer("Unknown station: " .. tostring(locationKey))
+        return false
+    end
+    TeleportToLocation(station.exitLocation)
+    return true
+end
+
+
 local drawTextScreenX, drawTextScreenY
 local DRAW_TEXT_MOVE_THRESHOLD = 0.002
 local DRAW_TEXT_SMOOTH_FACTOR = 0.2
@@ -191,6 +216,15 @@ RegisterNUICallback("NUIFocusOff", function(_, cb)
     cb('ok')
 end)
 
+RegisterNUICallback("TeleportToStation", function(_, cb)
+    local locationKey = data.locationKey
+    if not locationKey then
+        return NotifyPlayer("location not found")
+    end
+    TeleportToStation(locationKey)
+    cb('ok')
+end)
+
 RegisterNUICallback("NUILoaded", function(_, cb)
     SendNUIMessage({
         type = "SetupConfig",
@@ -256,3 +290,11 @@ end, false)
 
 RegisterCommand("train_close", CloseUI, false)
 RegisterCommand("train_open", OpenUI, false)
+RegisterCommand("train_teleport", function(_, args)
+    local locationKey = args[1]
+    if not locationKey then
+        NotifyPlayer("Usage: /train_teleport ANNESBURG")
+        return
+    end
+    TeleportToStation(locationKey)
+end, false)

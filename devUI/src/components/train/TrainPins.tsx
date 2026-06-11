@@ -1,5 +1,8 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import { gameToStaticMapPixel, STATIC_MAP_IMAGE } from "@/components/meRedMCoord/mapCoords";
+import {
+  gameToStaticMapPixel,
+  STATIC_MAP_IMAGE,
+} from "@/components/meRedMCoord/mapCoords";
 import { useStaticTrainMapScale } from "@/components/train/StaticTrainMap";
 import useGlobalVar from "@/services/GlobalVar";
 import {
