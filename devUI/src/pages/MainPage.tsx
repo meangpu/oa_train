@@ -21,7 +21,7 @@ const MainPage: React.FC = () => {
       <StaticTrainMap height='h-[720px]'>
         <TrainPins />
       </StaticTrainMap>
-      <div className='absolute -right-40 flex flex-col gap-2'>
+      <div className='absolute -right-42 flex flex-col gap-2'>
         <WaitDurationTier />
       </div>
     </div>
