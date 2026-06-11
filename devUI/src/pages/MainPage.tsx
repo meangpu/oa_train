@@ -1,5 +1,5 @@
 import MiniMap from "@/components/meRedMCoord/MiniMap";
-import { TrainPins } from "@/components/train";
+import TrainPins from "@/components/train/TrainPins";
 import useGlobalVar from "@/services/GlobalVar";
 import React from "react";
 
