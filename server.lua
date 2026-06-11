@@ -210,7 +210,7 @@ RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationK
     local fromLabel = Config.Location[fromStationKey].label or fromStationKey
     local toLabel = Config.Location[toStationKey].label or toStationKey
     LogDataDog(
-        ("%s รถไฟ %s -> %s | cost: $%d | wait: %d sec"):format(
+        ("%s %s -> %s | cost: $%d | wait: %d sec"):format(
             playerName,
             fromLabel,
             toLabel,
