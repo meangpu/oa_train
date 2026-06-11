@@ -12,6 +12,12 @@ const LEAFLET_MAX_LNG = 176;
 const LEAFLET_RANGE_LAT = LEAFLET_MAX_LAT - LEAFLET_MIN_LAT;
 const LEAFLET_RANGE_LNG = LEAFLET_MAX_LNG - LEAFLET_MIN_LNG;
 
+export const MAP_CENTER_COORDS = {
+  x: (GAME_MIN_X + GAME_MAX_X) / 2,
+  y: (GAME_MIN_Y + GAME_MAX_Y) / 2,
+  z: 0,
+} as const;
+
 export const gameToLeaflet = (
   x: number,
   y: number
