@@ -113,6 +113,11 @@ local function LogGuardWithSource(message, source)
     end
 end
 
+local function GetPlayerVipTier(steamHex)
+    exports.oa_vip_reward:GetHighestVipTier(steamHex, function(tier)
+        print(tier)
+    end)
+end
 --==========================
 --  Event Handlers
 --==========================
@@ -191,7 +196,8 @@ RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationK
     local playerMoney = Character.money or 0
     if playerMoney < details.cost then
         LogGuardWithSource(
-        playerName .. "พยายามใช้รถไฟ โดยที่มีเงินไม่พอ มีเงิน " .. playerMoney .. " แต่ต้องการใช้รถไฟ " .. details.cost,
+            playerName ..
+            "พยายามใช้รถไฟ โดยที่มีเงินไม่พอ มีเงิน " .. playerMoney .. " แต่ต้องการใช้รถไฟ " .. details.cost,
             _source)
         NotifyPlayer(_source, "คุณมีเงินไม่พอ")
         return
@@ -260,4 +266,16 @@ RegisterCommand("train_cooldown", function(source, args, rawCommand)
     else
         NotifyPlayer(_source, "คุณสามารถใช้งานรถไฟได้แล้ว")
     end
+end, false)
+
+RegisterCommand("train_getTier", function(source, args, rawCommand)
+    local _source = source
+    local User = vorpCore.getUser(_source)
+    if not User or not User.getUsedCharacter then
+        NotifyPlayer(_source, "ไม่พบข้อมูลตัวละคร")
+        return
+    end
+    local steamHex = getPlayerSteamHex(User.getUsedCharacter)
+    print(steamHex)
+    GetPlayerVipTier(steamHex)
 end, false)
