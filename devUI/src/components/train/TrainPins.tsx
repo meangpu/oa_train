@@ -76,8 +76,6 @@ const TrainPins: React.FC<TrainPinsProps> = ({
     }, 50);
   }, []);
 
-  const isHoverActive = hoveredStationKey !== null;
-
   return (
     <>
       {routeLinePositions ? (
@@ -91,29 +89,21 @@ const TrainPins: React.FC<TrainPinsProps> = ({
           }}
         />
       ) : null}
-      {Object.entries(trainLocations).map(([stationKey, location]) => {
-        const isHighlighted =
-          !isHoverActive ||
-          stationKey === closestStationKey ||
-          stationKey === hoveredStationKey;
-
-        return (
-          <StationPin
-            key={stationKey}
-            stationKey={stationKey}
-            location={location}
-            selected={selectedStation === stationKey}
-            disabled={disabledStations.includes(stationKey)}
-            isPlayerHere={closestStationKey === stationKey}
-            currentStationLocation={currentStationLocation}
-            currentStationLabel={currentStationLabel}
-            dimmed={!isHighlighted}
-            onClick={onStationClick}
-            onHoverStart={() => handleHoverStart(stationKey)}
-            onHoverEnd={handleHoverEnd}
-          />
-        );
-      })}
+      {Object.entries(trainLocations).map(([stationKey, location]) => (
+        <StationPin
+          key={stationKey}
+          stationKey={stationKey}
+          location={location}
+          selected={selectedStation === stationKey}
+          disabled={disabledStations.includes(stationKey)}
+          isPlayerHere={closestStationKey === stationKey}
+          currentStationLocation={currentStationLocation}
+          currentStationLabel={currentStationLabel}
+          onClick={onStationClick}
+          onHoverStart={() => handleHoverStart(stationKey)}
+          onHoverEnd={handleHoverEnd}
+        />
+      ))}
     </>
   );
 };

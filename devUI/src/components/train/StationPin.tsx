@@ -25,7 +25,6 @@ export interface StationPinProps {
   isPlayerHere?: boolean;
   currentStationLocation?: Coord3 | null;
   currentStationLabel?: string | null;
-  dimmed?: boolean;
   onClick?: (context: StationPinContext) => void;
   onHoverStart?: () => void;
   onHoverEnd?: () => void;
@@ -33,14 +32,11 @@ export interface StationPinProps {
 
 const PIN_GREEN = "#37c2af";
 
-const DIMMED_PIN_OPACITY = 0.35;
-
 const createTrainPinIcon = (
   label: string,
   selected = false,
   disabled = false,
-  isPlayerHere = false,
-  dimmed = false
+  isPlayerHere = false
 ) => {
   const color = disabled
     ? "#6b6b6b"
@@ -50,10 +46,7 @@ const createTrainPinIcon = (
         ? "#f5c542"
         : "#e8d4a8";
   const iconMarkup = renderToStaticMarkup(
-    <div
-      className='relative w-[22px] h-[22px]'
-      style={{ opacity: dimmed ? DIMMED_PIN_OPACITY : 1 }}
-    >
+    <div className='train-pin-inner relative w-[22px] h-[22px]'>
       <div
         className='text-[8px] absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap px-1 rounded'
         style={{
@@ -102,15 +95,14 @@ const StationPin: React.FC<StationPinProps> = ({
   isPlayerHere = false,
   currentStationLocation = null,
   currentStationLabel = null,
-  dimmed = false,
   onClick,
   onHoverStart,
   onHoverEnd,
 }) => {
   const label = formatTrainStationLabel(stationKey);
   const icon = useMemo(
-    () => createTrainPinIcon(label, selected, disabled, isPlayerHere, dimmed),
-    [label, selected, disabled, isPlayerHere, dimmed]
+    () => createTrainPinIcon(label, selected, disabled, isPlayerHere),
+    [label, selected, disabled, isPlayerHere]
   );
   const tooltipText = useMemo(() => {
     if (!currentStationLocation) return null;
@@ -144,7 +136,6 @@ const StationPin: React.FC<StationPinProps> = ({
     <Marker
       position={gameToLeaflet(x, y)}
       icon={icon}
-      zIndexOffset={dimmed ? 0 : 1000}
       eventHandlers={{
         click: handleClick,
         mouseover: onHoverStart,
