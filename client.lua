@@ -127,9 +127,10 @@ local function TeleportToLocation(loc)
     if loc.w then
         SetEntityHeading(ped, loc.w)
     end
-    Wait(1000)
+    Wait(1500)
     DoScreenFadeIn(2000)
     SendPlayerLocationToUI()
+    SentPlayerMoneyToUI()
 end
 
 local function TeleportToStation(locationKey)
