@@ -7,6 +7,7 @@ local waitTeleportDrawCoords = nil
 local interactDistance = Config.InteractDistance or 3.0
 local BlipData = {}
 local nearNpc = false
+local TrainSounds = { "TrainGetIn.mp3", "TrainGetOut.mp3" }
 
 --========================================
 --  Enable Controls
@@ -218,6 +219,10 @@ local function PlayUIAudio(audioName)
     SendNUIMessage({ type = "PlayAudio", audioName = audioName })
 end
 
+local function PlayRandomTrainSound()
+    PlayUIAudio(TrainSounds[math.random(1, #TrainSounds)])
+end
+
 local function FreezePlayer(waitSeconds, onComplete)
     if isWaitTeleport then
         NotifyPlayer("กำลังรออยู่แล้ว")
@@ -244,9 +249,7 @@ local function FreezePlayer(waitSeconds, onComplete)
         FreezeEntityPosition(ped, false)
         isWaitTeleport = false
         waitTeleportDrawCoords = nil
-
-        PlayUIAudio("TrainGetIn.mp3")
-        PlayUIAudio("TrainGetOut.mp3")
+        PlayRandomTrainSound()
         if onComplete then onComplete() end
     end)
     return true
