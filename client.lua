@@ -58,10 +58,7 @@ end
 local function SendPlayerLocationToUI()
     -- {"x":-1644.4381103515626,"y":-1393.212646484375,"z":83.19735717773438}
     local pCoord = GetEntityCoords(PlayerPedId())
-    SendNUIMessage({
-        type = "SetPlayerLocation",
-        playerLocation = pCoord,
-    })
+    SendNUIMessage({ type = "SetPlayerLocation", playerLocation = pCoord, })
 end
 
 
