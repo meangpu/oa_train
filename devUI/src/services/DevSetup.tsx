@@ -43,8 +43,8 @@ export function useDevSetup() {
         playerLocation: { x: -1644.44, y: -1393.21, z: 83.2 },
         trainLocations: DEV_TRAIN_LOCATIONS,
         playerMoney: 10000,
-        userCooldownSecondsLeft: 20,
       });
+      useGlobalVar.getState().setUserCooldownSecondsLeft(20);
     }
   }, []);
 }

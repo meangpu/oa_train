@@ -4,7 +4,7 @@ import {
   STATIC_MAP_IMAGE,
 } from "@/components/meRedMCoord/mapCoords";
 import { useStaticTrainMapScale } from "@/components/train/StaticTrainMap";
-import useGlobalVar from "@/services/GlobalVar";
+import useGlobalVar, { useUserCooldownSecondsLeft } from "@/services/GlobalVar";
 import {
   findClosestStationKey,
   formatTrainStationLabel,
@@ -27,10 +27,7 @@ const TrainPins: React.FC<TrainPinsProps> = ({
   const trainLocations = useGlobalVar((state) => state.trainLocations);
   const playerLocation = useGlobalVar((state) => state.playerLocation);
   const playerMoney = useGlobalVar((state) => state.playerMoney);
-  const userCooldownSecondsLeft = useGlobalVar(
-    (state) => state.userCooldownSecondsLeft,
-  );
-  const isOnUserCooldown = userCooldownSecondsLeft > 0;
+  const isOnUserCooldown = useUserCooldownSecondsLeft() > 0;
   const [hoveredStationKey, setHoveredStationKey] = useState<string | null>(
     null,
   );

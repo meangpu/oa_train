@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { create } from "zustand";
 import useGlobalModal from "./GlobalModal";
 import { NuiProxy } from "./NuiProxy";
@@ -46,12 +46,66 @@ interface GlobalVarType {
   playerMoney: number;
   setPlayerMoney: (money: number) => void;
 
-  userCooldownSecondsLeft: number;
+  userCooldownEndsAt: number | null;
   setUserCooldownSecondsLeft: (seconds: number) => void;
 
   setDisplayRoot: (display: boolean) => void;
   CloseUIDisableClient: () => void;
   ChangeUINavPage: (page: string) => void;
+}
+
+const cooldownSubscribers = new Set<() => void>();
+let cooldownTickerId: number | null = null;
+
+function getUserCooldownSecondsLeft(endsAt: number | null): number {
+  if (!endsAt) return 0;
+  return Math.max(0, Math.ceil((endsAt - Date.now()) / 1000));
+}
+
+function notifyCooldownSubscribers() {
+  cooldownSubscribers.forEach((cb) => cb());
+}
+
+function stopCooldownTicker() {
+  if (cooldownTickerId !== null) {
+    window.clearInterval(cooldownTickerId);
+    cooldownTickerId = null;
+  }
+}
+
+function ensureCooldownTicker() {
+  if (cooldownTickerId !== null) return;
+  cooldownTickerId = window.setInterval(() => {
+    const endsAt = useGlobalVar.getState().userCooldownEndsAt;
+    if (!endsAt || getUserCooldownSecondsLeft(endsAt) <= 0) {
+      if (endsAt) {
+        useGlobalVar.setState({ userCooldownEndsAt: null });
+      }
+      stopCooldownTicker();
+    }
+    notifyCooldownSubscribers();
+  }, 1000);
+}
+
+function subscribeCooldownTick(onStoreChange: () => void) {
+  cooldownSubscribers.add(onStoreChange);
+  const endsAt = useGlobalVar.getState().userCooldownEndsAt;
+  if (endsAt && getUserCooldownSecondsLeft(endsAt) > 0) {
+    ensureCooldownTicker();
+  }
+  return () => {
+    cooldownSubscribers.delete(onStoreChange);
+    if (cooldownSubscribers.size === 0) {
+      stopCooldownTicker();
+    }
+  };
+}
+
+export function useUserCooldownSecondsLeft(): number {
+  return useSyncExternalStore(
+    subscribeCooldownTick,
+    () => getUserCooldownSecondsLeft(useGlobalVar.getState().userCooldownEndsAt),
+  );
 }
 
 const useGlobalVar = create<GlobalVarType>((set, get) => {
@@ -108,10 +162,17 @@ const useGlobalVar = create<GlobalVarType>((set, get) => {
       set({ playerMoney: Number.isFinite(next) ? next : 0 });
     },
 
-    userCooldownSecondsLeft: 0,
+    userCooldownEndsAt: null,
     setUserCooldownSecondsLeft: (seconds: number) => {
       const next = Math.max(0, Math.floor(Number(seconds) || 0));
-      set({ userCooldownSecondsLeft: next });
+      if (next <= 0) {
+        set({ userCooldownEndsAt: null });
+        stopCooldownTicker();
+      } else {
+        set({ userCooldownEndsAt: Date.now() + next * 1000 });
+        ensureCooldownTicker();
+      }
+      notifyCooldownSubscribers();
     },
 
     setDisplayRoot: (display: boolean) => {

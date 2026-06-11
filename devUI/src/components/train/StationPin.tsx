@@ -4,7 +4,7 @@ import { gameToStaticMapPixel } from "@/components/meRedMCoord/mapCoords";
 import { useStaticTrainMapScale } from "@/components/train/StaticTrainMap";
 import useGlobalModal from "@/services/GlobalModal";
 import { NuiProxy } from "@/services/NuiProxy";
-import useGlobalVar from "@/services/GlobalVar";
+import { useUserCooldownSecondsLeft } from "@/services/GlobalVar";
 import {
   Coord3,
   distanceBetweenCoords,
@@ -126,9 +126,7 @@ const StationPin: React.FC<StationPinProps> = ({
   const mapScale = useStaticTrainMapScale();
   const pinScreenScale = 1 / mapScale;
 
-  const userCooldownSecondsLeft = useGlobalVar(
-    (state) => state.userCooldownSecondsLeft,
-  );
+  const userCooldownSecondsLeft = useUserCooldownSecondsLeft();
 
   const handleClick = useCallback(() => {
     if (disabled || isPlayerHere) return;
