@@ -5,14 +5,7 @@ import { formatCooldownRemaining } from "@/services/Utils";
 
 const UserCooldownDisplay: React.FC = () => {
   const secondsLeft = useGlobalVar((state) => state.userCooldownSecondsLeft);
-  const requestUserCooldown = useGlobalVar(
-    (state) => state.requestUserCooldown,
-  );
   const isCooldownActive = secondsLeft > 0;
-
-  useEffect(() => {
-    void requestUserCooldown();
-  }, [requestUserCooldown]);
 
   useEffect(() => {
     if (!isCooldownActive) return;

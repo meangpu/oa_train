@@ -48,7 +48,6 @@ interface GlobalVarType {
 
   userCooldownSecondsLeft: number;
   setUserCooldownSecondsLeft: (seconds: number) => void;
-  requestUserCooldown: () => Promise<number>;
 
   setDisplayRoot: (display: boolean) => void;
   CloseUIDisableClient: () => void;
@@ -114,17 +113,6 @@ const useGlobalVar = create<GlobalVarType>((set, get) => {
       const next = Math.max(0, Math.floor(Number(seconds) || 0));
       set({ userCooldownSecondsLeft: next });
     },
-    requestUserCooldown: async () => {
-      const result = await NuiProxy.call<{ secondsLeft: number }>(
-        "RequestUserCooldown",
-      );
-      if (result && typeof result.secondsLeft === "number") {
-        const secondsLeft = Math.max(0, Math.floor(result.secondsLeft));
-        set({ userCooldownSecondsLeft: secondsLeft });
-        return secondsLeft;
-      }
-      return get().userCooldownSecondsLeft;
-    },
 
     setDisplayRoot: (display: boolean) => {
       set({ displayRoot: display });
@@ -183,7 +171,6 @@ export function useEventHandlers() {
       switch (data.type) {
         case "OpenUI":
           useGlobalVar.getState().setDisplayRoot(true);
-          void useGlobalVar.getState().requestUserCooldown();
           break;
         case "CloseUI":
           useGlobalVar.getState().setDisplayRoot(false);
