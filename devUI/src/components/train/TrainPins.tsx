@@ -24,13 +24,13 @@ const TrainPins: React.FC<TrainPinsProps> = ({
   const trainLocations = useGlobalVar((state) => state.trainLocations);
   const playerLocation = useGlobalVar((state) => state.playerLocation);
   const [hoveredStationKey, setHoveredStationKey] = useState<string | null>(
-    null
+    null,
   );
   const hoverClearTimerRef = useRef<number | null>(null);
 
   const closestStationKey = useMemo(
     () => findClosestStationKey(playerLocation, trainLocations),
-    [playerLocation, trainLocations]
+    [playerLocation, trainLocations],
   );
 
   const currentStationLocation = closestStationKey
