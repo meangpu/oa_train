@@ -71,7 +71,7 @@ export function formatWaitTimeText(distance: number): ReactNode {
   const seconds = getWaitTimeSeconds(getTravelCost(distance));
   return (
     <div>
-      ระยะเวลารอ{" "}
+      เวลารอ{" "}
       <span className='text-green-light font-extrabold'>
         {seconds.toLocaleString()} วินาที
       </span>

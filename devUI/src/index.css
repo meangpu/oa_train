@@ -300,7 +300,7 @@ th.descending {
 }
 
 .train-pin-tooltip-static::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 100%;
   left: 50%;
@@ -327,7 +327,7 @@ th.descending {
 
 .train-pin-icon .train-pin-inner {
   opacity: 0.9;
-  transition: opacity 0.15s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
 }
 
 .train-pin-icon:hover .train-pin-inner {
