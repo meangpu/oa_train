@@ -6,8 +6,11 @@ import { FaTrain } from "react-icons/fa";
 import { gameToLeaflet } from "@/components/meRedMCoord/mapCoords";
 import {
   Coord3,
-  distanceBetweenCoordsText,
+  distanceBetweenCoords,
+  formatDistanceText,
   formatTrainStationLabel,
+  formatTravelCostText,
+  isValidCoord3,
 } from "@/services/Utils";
 import { TrainStationLocation } from "@/types/TrainConfig";
 
@@ -48,7 +51,7 @@ const createTrainPinIcon = (
   const iconMarkup = renderToStaticMarkup(
     <div className='train-pin-inner relative w-[22px] h-[22px]'>
       <div
-        className='text-[8px] absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap px-1 rounded'
+        className='text-[8px] absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap px-1 rounded '
         style={{
           color,
           textShadow: "0 0 3px rgba(0,0,0,0.9)",
@@ -104,17 +107,33 @@ const StationPin: React.FC<StationPinProps> = ({
     () => createTrainPinIcon(label, selected, disabled, isPlayerHere),
     [label, selected, disabled, isPlayerHere],
   );
-  const tooltipText = useMemo(() => {
+  const tooltipContent = useMemo(() => {
     if (!currentStationLocation) return null;
     if (isPlayerHere) return "คุณอยู่ที่นี่";
-    const distanceText = distanceBetweenCoordsText(
+
+    if (
+      !isValidCoord3(currentStationLocation) ||
+      !isValidCoord3(location.npcLocation)
+    ) {
+      return null;
+    }
+
+    const distance = distanceBetweenCoords(
       currentStationLocation,
       location.npcLocation,
     );
-    if (!distanceText) return null;
-    return currentStationLabel
+    const distanceText = formatDistanceText(distance);
+    const travelCostText = formatTravelCostText(distance);
+    const distanceLine = currentStationLabel
       ? `${distanceText} จาก ${currentStationLabel}`
       : distanceText;
+
+    return (
+      <div className='flex flex-col items-center gap-0.5 leading-tight'>
+        <span>{distanceLine}</span>
+        <span>{travelCostText}</span>
+      </div>
+    );
   }, [
     currentStationLocation,
     currentStationLabel,
@@ -147,14 +166,14 @@ const StationPin: React.FC<StationPinProps> = ({
         mouseout: onHoverEnd,
       }}
     >
-      {tooltipText ? (
+      {tooltipContent ? (
         <Tooltip
           direction='top'
           offset={[0, -18]}
           opacity={1}
           className='train-pin-tooltip'
         >
-          {tooltipText}
+          {tooltipContent}
         </Tooltip>
       ) : null}
     </Marker>

@@ -84,7 +84,7 @@ const TrainPins: React.FC<TrainPinsProps> = ({
           pathOptions={{
             color: ROUTE_LINE_COLOR,
             weight: 2,
-            opacity: 0.85,
+            opacity: 0.9,
             dashArray: "8 6",
           }}
         />

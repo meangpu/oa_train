@@ -42,6 +42,15 @@ export function distanceBetweenCoordsText(
   return formatDistanceText(distanceBetweenCoords(from, to));
 }
 
+export function roundDownToHundred(value: number): number {
+  return Math.floor(value / 100) * 100;
+}
+
+export function formatTravelCostText(distance: number): string {
+  const cost = roundDownToHundred(Math.round(distance));
+  return `ค่าเดินทาง ${cost.toLocaleString()}`;
+}
+
 export function formatTrainStationLabel(stationKey: string): string {
   return stationKey
     .toLowerCase()
