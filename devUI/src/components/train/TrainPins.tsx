@@ -1,5 +1,9 @@
 import React, { useMemo } from "react";
 import useGlobalVar from "@/services/GlobalVar";
+import {
+  findClosestStationKey,
+  formatTrainStationLabel,
+} from "@/services/Utils";
 import StationPin, { StationPinContext } from "./StationPin";
 
 export interface TrainPinsProps {
@@ -7,41 +11,6 @@ export interface TrainPinsProps {
   disabledStations?: string[];
   onStationClick?: (context: StationPinContext) => void;
 }
-
-const findClosestStationKey = (
-  playerLocation: { x: number; y: number; z: number },
-  trainLocations: Record<string, { npcLocation: { x: number; y: number; z: number } }>
-) => {
-  const { x, y, z } = playerLocation;
-  if (
-    x === undefined ||
-    y === undefined ||
-    Number.isNaN(x) ||
-    Number.isNaN(y)
-  ) {
-    return null;
-  }
-
-  let closestKey: string | null = null;
-  let minDistSq = Infinity;
-
-  for (const [stationKey, location] of Object.entries(trainLocations)) {
-    const { x: sx, y: sy, z: sz } = location.npcLocation;
-    if (sx === undefined || sy === undefined || Number.isNaN(sx) || Number.isNaN(sy)) {
-      continue;
-    }
-    const dx = x - sx;
-    const dy = y - sy;
-    const dz = z - (sz ?? 0);
-    const distSq = dx * dx + dy * dy + dz * dz;
-    if (distSq < minDistSq) {
-      minDistSq = distSq;
-      closestKey = stationKey;
-    }
-  }
-
-  return closestKey;
-};
 
 const TrainPins: React.FC<TrainPinsProps> = ({
   selectedStation = null,
@@ -56,6 +25,13 @@ const TrainPins: React.FC<TrainPinsProps> = ({
     [playerLocation, trainLocations]
   );
 
+  const currentStationLocation = closestStationKey
+    ? trainLocations[closestStationKey]?.npcLocation
+    : null;
+  const currentStationLabel = closestStationKey
+    ? formatTrainStationLabel(closestStationKey)
+    : null;
+
   return (
     <>
       {Object.entries(trainLocations).map(([stationKey, location]) => (
@@ -66,6 +42,8 @@ const TrainPins: React.FC<TrainPinsProps> = ({
           selected={selectedStation === stationKey}
           disabled={disabledStations.includes(stationKey)}
           isPlayerHere={closestStationKey === stationKey}
+          currentStationLocation={currentStationLocation}
+          currentStationLabel={currentStationLabel}
           onClick={onStationClick}
         />
       ))}

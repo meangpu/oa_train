@@ -1,9 +1,14 @@
 import React, { useCallback, useMemo } from "react";
-import { Marker } from "react-leaflet";
+import { Marker, Tooltip } from "react-leaflet";
 import L from "leaflet";
 import { renderToStaticMarkup } from "react-dom/server";
 import { FaTrain } from "react-icons/fa";
 import { gameToLeaflet } from "@/components/meRedMCoord/mapCoords";
+import {
+  Coord3,
+  distanceBetweenCoordsText,
+  formatTrainStationLabel,
+} from "@/services/Utils";
 import { TrainStationLocation } from "@/types/TrainConfig";
 
 export interface StationPinContext {
@@ -18,17 +23,12 @@ export interface StationPinProps {
   selected?: boolean;
   disabled?: boolean;
   isPlayerHere?: boolean;
+  currentStationLocation?: Coord3 | null;
+  currentStationLabel?: string | null;
   onClick?: (context: StationPinContext) => void;
 }
 
 const PIN_GREEN = "#37c2af";
-
-const formatStationLabel = (stationKey: string) =>
-  stationKey
-    .toLowerCase()
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
 
 const createTrainPinIcon = (
   label: string,
@@ -91,13 +91,32 @@ const StationPin: React.FC<StationPinProps> = ({
   selected = false,
   disabled = false,
   isPlayerHere = false,
+  currentStationLocation = null,
+  currentStationLabel = null,
   onClick,
 }) => {
-  const label = formatStationLabel(stationKey);
+  const label = formatTrainStationLabel(stationKey);
   const icon = useMemo(
     () => createTrainPinIcon(label, selected, disabled, isPlayerHere),
     [label, selected, disabled, isPlayerHere]
   );
+  const tooltipText = useMemo(() => {
+    if (!currentStationLocation) return null;
+    if (isPlayerHere) return "คุณอยู่ที่นี่";
+    const distanceText = distanceBetweenCoordsText(
+      currentStationLocation,
+      location.npcLocation
+    );
+    if (!distanceText) return null;
+    return currentStationLabel
+      ? `${distanceText} จาก ${currentStationLabel}`
+      : distanceText;
+  }, [
+    currentStationLocation,
+    currentStationLabel,
+    isPlayerHere,
+    location.npcLocation,
+  ]);
   const { x, y } = location.npcLocation;
 
   const handleClick = useCallback(() => {
@@ -116,7 +135,18 @@ const StationPin: React.FC<StationPinProps> = ({
       eventHandlers={{
         click: handleClick,
       }}
-    />
+    >
+      {tooltipText ? (
+        <Tooltip
+          direction='top'
+          offset={[0, -18]}
+          opacity={1}
+          className='train-pin-tooltip'
+        >
+          {tooltipText}
+        </Tooltip>
+      ) : null}
+    </Marker>
   );
 };
 

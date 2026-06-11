@@ -245,3 +245,17 @@ th.descending {
   max-width: none !important;
   max-height: none !important;
 }
+
+.leaflet-tooltip.train-pin-tooltip {
+  background-color: #1b1b1bbe;
+  border: 1px solid #eeead634;
+  color: #eeead6;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.leaflet-tooltip.train-pin-tooltip::before {
+  border-top-color: #1b1b1bbe;
+}

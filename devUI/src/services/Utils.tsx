@@ -1,4 +1,79 @@
 /* eslint-disable react-refresh/only-export-components */
+
+export interface Coord3 {
+  x: number;
+  y: number;
+  z: number;
+}
+
+export function isValidCoord3(
+  coord: Partial<Coord3> | undefined | null
+): coord is Coord3 {
+  if (!coord) return false;
+  if (coord.x === undefined || coord.y === undefined) return false;
+  if (Number.isNaN(coord.x) || Number.isNaN(coord.y)) return false;
+  return true;
+}
+
+export function distanceBetweenCoords(a: Coord3, b: Coord3): number {
+  const dzA = a.z ?? 0;
+  const dzB = b.z ?? 0;
+  return Math.hypot(a.x - b.x, a.y - b.y, dzA - dzB);
+}
+
+export function distanceSquaredBetweenCoords(a: Coord3, b: Coord3): number {
+  const dzA = a.z ?? 0;
+  const dzB = b.z ?? 0;
+  const dx = a.x - b.x;
+  const dy = a.y - b.y;
+  const dz = dzA - dzB;
+  return dx * dx + dy * dy + dz * dz;
+}
+
+export function formatDistanceText(distance: number): string {
+  return `${Math.round(distance).toLocaleString()}m`;
+}
+
+export function distanceBetweenCoordsText(
+  from: Coord3,
+  to: Coord3
+): string | null {
+  if (!isValidCoord3(from) || !isValidCoord3(to)) return null;
+  return formatDistanceText(distanceBetweenCoords(from, to));
+}
+
+export function formatTrainStationLabel(stationKey: string): string {
+  return stationKey
+    .toLowerCase()
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+export function findClosestStationKey(
+  playerLocation: Coord3,
+  trainLocations: Record<string, { npcLocation: Coord3 }>
+): string | null {
+  if (!isValidCoord3(playerLocation)) return null;
+
+  let closestKey: string | null = null;
+  let minDistSq = Infinity;
+
+  for (const [stationKey, location] of Object.entries(trainLocations)) {
+    if (!isValidCoord3(location.npcLocation)) continue;
+    const distSq = distanceSquaredBetweenCoords(
+      playerLocation,
+      location.npcLocation
+    );
+    if (distSq < minDistSq) {
+      minDistSq = distSq;
+      closestKey = stationKey;
+    }
+  }
+
+  return closestKey;
+}
+
 export function formatDate(dateInput: string | number | Date): string {
   if (!dateInput || dateInput === "") {
     return "";
