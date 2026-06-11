@@ -10,6 +10,7 @@ import {
   formatDistanceText,
   formatTrainStationLabel,
   formatTravelCostText,
+  formatWaitTimeText,
   isValidCoord3,
 } from "@/services/Utils";
 import { TrainStationLocation } from "@/types/TrainConfig";
@@ -123,6 +124,7 @@ const StationPin: React.FC<StationPinProps> = ({
     );
     const distanceText = formatDistanceText(distance);
     const travelCostText = formatTravelCostText(distance);
+    const waitTimeText = formatWaitTimeText(distance);
     const distanceLine = currentStationLabel
       ? `ระยะ ${distanceText}`
       : distanceText;
@@ -131,6 +133,7 @@ const StationPin: React.FC<StationPinProps> = ({
       <div className='flex flex-col items-center gap-0.5 leading-tight'>
         <span>{distanceLine}</span>
         <span>{travelCostText}</span>
+        <span>{waitTimeText}</span>
       </div>
     );
   }, [

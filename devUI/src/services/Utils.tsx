@@ -47,13 +47,33 @@ export function roundDownToHundred(value: number): number {
   return Math.floor(value / 100) * 100;
 }
 
+export function getTravelCost(distance: number): number {
+  return roundDownToHundred(Math.round(distance));
+}
+
+export function getWaitTimeSeconds(cost: number): number {
+  return Math.floor(cost / 100);
+}
+
 export function formatTravelCostText(distance: number): ReactNode {
-  const cost = roundDownToHundred(Math.round(distance));
+  const cost = getTravelCost(distance);
   return (
     <div>
       ค่าเดินทาง{" "}
       <span className='text-green-light font-extrabold'>
         ${cost.toLocaleString()}
+      </span>
+    </div>
+  );
+}
+
+export function formatWaitTimeText(distance: number): ReactNode {
+  const seconds = getWaitTimeSeconds(getTravelCost(distance));
+  return (
+    <div>
+      ระยะเวลารอ{" "}
+      <span className='text-green-light font-extrabold'>
+        {seconds.toLocaleString()} วินาที
       </span>
     </div>
   );
