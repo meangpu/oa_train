@@ -244,20 +244,24 @@ end)
 --==========================
 --  Commands
 --==========================
-RegisterCommand("t_addItem", function(source, args, rawCommand)
+RegisterCommand("train_cooldown", function(source, args, rawCommand)
     local _source = source
-    if not CheckAdmin(_source) then return end
-    local itemCount = 1
-    local itemName = "bread"
-    local canCarry = vorpInventory.canCarryItem(_source, itemName, itemCount)
-    if not canCarry then
-        NotifyPlayer(_source, ("<red-bg>%s</red-bg> เต็มกระเป๋าแล้ว"):format(itemName))
+    local User = vorpCore.getUser(_source)
+    if not User or not User.getUsedCharacter then
+        NotifyPlayer(_source, "ไม่พบข้อมูลตัวละคร")
         return
     end
-    vorpInventory.addItem(_source, itemName, itemCount)
-    local logword = ("เพิ่ม %sx%d"):format(itemName, itemCount)
-    NotifyPlayer(_source, ("เพิ่ม %s <green-bg>x%d</green-bg>"):format(itemName, itemCount))
-    LogDataDog(logword, _source)
+    local steamHex = getPlayerSteamHex(User.getUsedCharacter)
+    local secondsLeft = getCooldownSecondsLeft(steamHex)
+    TriggerClientEvent(eventName("ReceiveUserCooldown"), _source, secondsLeft)
+    if secondsLeft > 0 then
+        NotifyPlayer(
+            _source,
+            ("คุณใช้งานรถไฟได้อีกครั้งใน %s"):format(formatCooldownRemaining(secondsLeft))
+        )
+    else
+        NotifyPlayer(_source, "คุณสามารถใช้งานรถไฟได้แล้ว")
+    end
 end, true)
 
 
