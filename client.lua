@@ -11,6 +11,8 @@ local BlipData = {}
 local nearNpc = false
 local TrainSounds = { "TrainGetIn.mp3", "TrainGetOut.mp3" }
 
+local trainUseCooldown = nil
+
 --========================================
 --  Enable Controls
 --========================================
@@ -96,10 +98,10 @@ local function SentPlayerMoneyToUI()
 end
 
 local function SendUserCooldownToUI(secondsLeft)
-    secondsLeft = math.max(0, math.floor(tonumber(secondsLeft) or 0))
+    trainUseCooldown = math.max(0, math.floor(tonumber(secondsLeft) or 0))
     SendNUIMessage({
         type = "SetUserCooldown",
-        secondsLeft = secondsLeft,
+        secondsLeft = trainUseCooldown,
     })
 end
 
@@ -285,8 +287,8 @@ RegisterNetEvent("oa_lib:forceCloseNuiFocus", function()
 end)
 
 RegisterNetEvent(eventName("ReceiveUserCooldown"), function(secondsLeft)
-    secondsLeft = math.max(0, math.floor(tonumber(secondsLeft) or 0))
-    SendUserCooldownToUI(secondsLeft)
+    trainUseCooldown = math.max(0, math.floor(tonumber(secondsLeft) or 0))
+    SendUserCooldownToUI(trainUseCooldown)
 
     if pendingUserCooldownCb then
         local cb = pendingUserCooldownCb
