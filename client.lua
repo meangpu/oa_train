@@ -2,7 +2,6 @@ local isOpenUI = false
 local scriptName = GetCurrentResourceName()
 local isWaitTeleport = false
 local waitTeleportSecondsLeft = 0
-local waitTeleportInitialSeconds = 0
 local waitTeleportDrawCoords = nil
 local waitTeleportToStationKey = nil
 
@@ -212,20 +211,12 @@ local function getStationDisplayName(stationKey)
     return stationKey
 end
 
-local function getTravelDots(elapsedSeconds)
-    local dotCount = (math.floor(elapsedSeconds) % 3) + 1
-    return string.rep(".", dotCount)
-end
-
 local function getWaitTeleportDisplayText()
     local stationName = getStationDisplayName(waitTeleportToStationKey)
-    local elapsed = waitTeleportInitialSeconds - waitTeleportSecondsLeft
-    local dots = getTravelDots(elapsed)
     return string.format(
-        "To %s %d %s",
+        "To %s in %d ...",
         stationName,
-        waitTeleportSecondsLeft,
-        dots
+        waitTeleportSecondsLeft
     )
 end
 
@@ -242,7 +233,6 @@ local function FreezePlayer(waitSeconds, onComplete, toStationKey)
     local ped = PlayerPedId()
     isWaitTeleport = true
     waitTeleportSecondsLeft = math.floor(waitSeconds)
-    waitTeleportInitialSeconds = waitTeleportSecondsLeft
     waitTeleportToStationKey = toStationKey
     waitTeleportDrawCoords = GetEntityCoords(ped)
     FreezeEntityPosition(ped, true)
@@ -258,7 +248,6 @@ local function FreezePlayer(waitSeconds, onComplete, toStationKey)
         isWaitTeleport = false
         waitTeleportDrawCoords = nil
         waitTeleportToStationKey = nil
-        waitTeleportInitialSeconds = 0
         PlayRandomTrainSound()
         if onComplete then onComplete() end
     end)
