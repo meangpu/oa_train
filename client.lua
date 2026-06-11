@@ -96,7 +96,6 @@ local function SentPlayerMoneyToUI()
     })
 end
 
-
 local function getTrainUseCooldownSecondsLeft()
     if trainUseCooldownEndsAt == nil or trainUseCooldownEndsAt <= 0 then
         return 0
