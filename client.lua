@@ -166,10 +166,6 @@ end
 --========================================
 --  Data Fetching
 --========================================
-local function FetchClientData()
-    SendPlayerInvToUI()
-    TriggerServerEvent(eventName("RequestClientData"))
-end
 
 --========================================
 --  Event Listeners,
@@ -195,11 +191,6 @@ RegisterNUICallback("NUIFocusOff", function(_, cb)
     cb('ok')
 end)
 
-RegisterNUICallback("UiTriggerClient", function(_, cb)
-    print("Trigger to client from UI")
-    FetchClientData()
-    cb('ok')
-end)
 
 RegisterNUICallback("NUILoaded", function(_, cb)
     -- SendNUIMessage({ type = "SetupConfig", itemTypes = Config.WhitelistedItems })
@@ -261,6 +252,5 @@ RegisterCommand("t_coord_check", function(source, args, rawCommand)
     NotifyPlayer("t_coord_check: " .. distance)
 end, false)
 
-RegisterCommand("t_fetch", FetchClientData, false)
-RegisterCommand("t_close", CloseUI, false)
-RegisterCommand("t_open", OpenUI, false)
+RegisterCommand("train_close", CloseUI, false)
+RegisterCommand("train_open", OpenUI, false)
