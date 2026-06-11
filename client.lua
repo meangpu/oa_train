@@ -55,6 +55,16 @@ local function SendPlayerInvToUI()
     })
 end
 
+local function SendPlayerLocationToUI()
+    -- {"x":-1644.4381103515626,"y":-1393.212646484375,"z":83.19735717773438}
+    local pCoord = GetEntityCoords(PlayerPedId())
+    SendNUIMessage({
+        type = "SetPlayerLocation",
+        playerLocation = pCoord,
+    })
+end
+
+
 local function CloseUI()
     SendNUIMessage({ type = "CloseUI" })
     isOpenUI = false
@@ -63,11 +73,11 @@ end
 
 local function OpenUI()
     SendNUIMessage({ type = "OpenUI" })
-    Wait(100)
     isOpenUI = true
     SetNuiFocus(true, true)
     SetNuiFocusKeepInput(true)
     SendPlayerInvToUI()
+    SendPlayerLocationToUI()
 end
 
 local function ChangeUINavPage(page)

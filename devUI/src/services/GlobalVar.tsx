@@ -25,6 +25,7 @@ interface GlobalVarType {
   MyValue: string;
   displayRoot: boolean;
   uiEnabled: boolean;
+  playerLocation: { x: number; y: number; z: number };
   setUiEnabled: (enabled: boolean) => void;
   setRouterNavigate: (
     navigate: ((to: string) => void) | null | undefined,
@@ -60,6 +61,7 @@ const useGlobalVar = create<GlobalVarType>((set, get) => {
       routerNavigate = navigate;
     },
 
+    playerLocation: { x: 0, y: 0, z: 0 },
     playerInventory: [],
     playerInventoryIndex: new Map(), // this make find itemCount and limit be O(1)
     setPlayerInventory: (inventory: ItemData[]) => {
@@ -169,6 +171,11 @@ export function useEventHandlers() {
         }
         case "SetPlayerInv":
           useGlobalVar.getState().setPlayerInventory(data.inventoryData);
+          break;
+        case "SetPlayerLocation":
+          useGlobalVar.setState({
+            playerLocation: data.playerLocation,
+          });
           break;
         case "SetClientData":
           useGlobalVar.setState({
