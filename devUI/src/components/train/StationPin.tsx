@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { Marker, Tooltip } from "react-leaflet";
+import { Marker } from "react-leaflet";
 import L from "leaflet";
 import { renderToStaticMarkup } from "react-dom/server";
 import { FaTrain } from "react-icons/fa";
@@ -44,6 +44,7 @@ const createTrainPinIcon = (
   selected = false,
   disabled = false,
   isPlayerHere = false,
+  tooltipContent: React.ReactNode | null = null,
 ) => {
   const color = disabled
     ? "#6b6b6b"
@@ -88,6 +89,9 @@ const createTrainPinIcon = (
           </div>
         ) : null}
       </div>
+      {tooltipContent ? (
+        <div className='train-pin-tooltip-static'>{tooltipContent}</div>
+      ) : null}
     </div>,
   );
 
@@ -115,10 +119,6 @@ const StationPin: React.FC<StationPinProps> = ({
   onHoverEnd,
 }) => {
   const label = formatTrainStationLabel(stationKey);
-  const icon = useMemo(
-    () => createTrainPinIcon(label, selected, disabled, isPlayerHere),
-    [label, selected, disabled, isPlayerHere],
-  );
   const tooltipContent = useMemo(() => {
     if (!currentStationLocation) return null;
     if (isPlayerHere) return "คุณอยู่ที่นี่";
@@ -154,6 +154,17 @@ const StationPin: React.FC<StationPinProps> = ({
     isPlayerHere,
     location.npcLocation,
   ]);
+  const icon = useMemo(
+    () =>
+      createTrainPinIcon(
+        label,
+        selected,
+        disabled,
+        isPlayerHere,
+        tooltipContent,
+      ),
+    [label, selected, disabled, isPlayerHere, tooltipContent],
+  );
   const { x, y } = location.npcLocation;
 
   const handleClick = useCallback(() => {
@@ -192,19 +203,7 @@ const StationPin: React.FC<StationPinProps> = ({
       position={gameToLeafletStatic(x, y)}
       icon={icon}
       eventHandlers={eventHandlers}
-    >
-      {tooltipContent ? (
-        <Tooltip
-          direction='top'
-          offset={[0, -34]}
-          opacity={1}
-          interactive
-          className='train-pin-tooltip'
-        >
-          {tooltipContent}
-        </Tooltip>
-      ) : null}
-    </Marker>
+    />
   );
 };
 

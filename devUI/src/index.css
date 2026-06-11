@@ -275,38 +275,54 @@ th.descending {
   max-height: none !important;
 }
 
-.leaflet-tooltip.train-pin-tooltip {
+.train-pin-icon .train-pin-hit {
+  background: transparent;
+  position: relative;
+}
+
+.train-pin-tooltip-static {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  margin-bottom: 8px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 2;
   background-color: #1b1b1bbe;
   border: 1px solid #eeead634;
   color: #eeead6;
   font-size: 12px;
   padding: 4px 8px;
   border-radius: 4px;
-  transition: none !important;
-  pointer-events: auto;
+  white-space: nowrap;
 }
 
-.leaflet-tooltip.train-pin-tooltip::before {
+.train-pin-tooltip-static::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
   border-top-color: #1b1b1bbe;
 }
 
-.leaflet-tooltip.train-pin-tooltip .text-price,
-.leaflet-tooltip.train-pin-tooltip .text-green-light {
-  color: #37c2af;
+.train-pin-icon:hover .train-pin-tooltip-static {
+  opacity: 1;
+  visibility: visible;
 }
 
 .train-pin-icon {
   cursor: pointer;
   background: transparent !important;
   border: none !important;
+  overflow: visible !important;
 }
 
 .train-pin-icon.train-pin-disabled {
   cursor: not-allowed;
-}
-
-.train-pin-icon .train-pin-hit {
-  background: transparent;
 }
 
 .train-pin-icon .train-pin-inner {
