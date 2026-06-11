@@ -2,7 +2,9 @@ local isOpenUI = false
 local scriptName = GetCurrentResourceName()
 local isWaitTeleport = false
 local waitTeleportSecondsLeft = 0
+local waitTeleportInitialSeconds = 0
 local waitTeleportDrawCoords = nil
+local waitTeleportToStationKey = nil
 
 local interactDistance = Config.InteractDistance or 3.0
 local BlipData = {}
@@ -199,7 +201,35 @@ local function PlayRandomTrainSound()
     PlayUIAudio(TrainSounds[math.random(1, #TrainSounds)])
 end
 
-local function FreezePlayer(waitSeconds, onComplete)
+local function getStationDisplayName(stationKey)
+    if not stationKey then return "station" end
+
+    local station = Config.Location[string.upper(stationKey)]
+    if station and station.label then
+        return station.label
+    end
+
+    return stationKey
+end
+
+local function getTravelDots(elapsedSeconds)
+    local dotCount = (math.floor(elapsedSeconds) % 3) + 1
+    return string.rep(".", dotCount)
+end
+
+local function getWaitTeleportDisplayText()
+    local stationName = getStationDisplayName(waitTeleportToStationKey)
+    local elapsed = waitTeleportInitialSeconds - waitTeleportSecondsLeft
+    local dots = getTravelDots(elapsed)
+    return string.format(
+        "To %s %d %s",
+        stationName,
+        waitTeleportSecondsLeft,
+        dots
+    )
+end
+
+local function FreezePlayer(waitSeconds, onComplete, toStationKey)
     if isWaitTeleport then
         NotifyPlayer("กำลังรออยู่แล้ว")
         return false
@@ -212,6 +242,8 @@ local function FreezePlayer(waitSeconds, onComplete)
     local ped = PlayerPedId()
     isWaitTeleport = true
     waitTeleportSecondsLeft = math.floor(waitSeconds)
+    waitTeleportInitialSeconds = waitTeleportSecondsLeft
+    waitTeleportToStationKey = toStationKey
     waitTeleportDrawCoords = GetEntityCoords(ped)
     FreezeEntityPosition(ped, true)
     SetEntityAlpha(ped, 150, false)
@@ -225,6 +257,8 @@ local function FreezePlayer(waitSeconds, onComplete)
         FreezeEntityPosition(ped, false)
         isWaitTeleport = false
         waitTeleportDrawCoords = nil
+        waitTeleportToStationKey = nil
+        waitTeleportInitialSeconds = 0
         PlayRandomTrainSound()
         if onComplete then onComplete() end
     end)
@@ -262,7 +296,7 @@ RegisterNetEvent(eventName("TeleportToStationApproved"), function(data)
 
     FreezePlayer(waitSeconds, function()
         TeleportToStation(toStationKey)
-    end)
+    end, toStationKey)
 end)
 
 --========================================
@@ -317,12 +351,13 @@ end)
 CreateThread(function()
     while true do
         if isWaitTeleport and waitTeleportSecondsLeft > 0 and waitTeleportDrawCoords then
+            local displayText = getWaitTeleportDisplayText()
             DrawText3D(
                 waitTeleportDrawCoords.x,
                 waitTeleportDrawCoords.y,
                 waitTeleportDrawCoords.z + 1.1,
-                string.format("%d", waitTeleportSecondsLeft),
-                1
+                displayText,
+                string.len(displayText)
             )
             Wait(0)
         else
