@@ -6,6 +6,7 @@ local waitTeleportDrawCoords = nil
 
 local interactDistance = 5.0
 local BlipData = {}
+local nearNpc = false
 
 --========================================
 --  Enable Controls
@@ -315,8 +316,8 @@ CreateThread(function()
         if isOpenUI then
             Wait(500)
         else
+            nearNpc = false
             local playerCoords = GetEntityCoords(PlayerPedId())
-            local nearNpc = false
             for _, location in pairs(Config.Location) do
                 if IsPlayerNearLocation(location.npcLocation, playerCoords) then
                     nearNpc = true
@@ -328,10 +329,8 @@ CreateThread(function()
                 if IsControlJustPressed(0, Config.InteractionKey) then
                     OpenUI()
                 end
-                Wait(0)
-            else
-                Wait(1000)
             end
+            Wait(nearNpc and 7 or 1000)
         end
     end
 end)
