@@ -390,7 +390,7 @@ CreateThread(function()
             DrawText3D(
                 waitTeleportDrawCoords.x,
                 waitTeleportDrawCoords.y,
-                waitTeleportDrawCoords.z + 1.1,
+                waitTeleportDrawCoords.z + 1.02,
                 displayText,
                 string.len(displayText)
             )
