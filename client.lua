@@ -4,7 +4,7 @@ local isWaitTeleport = false
 local waitTeleportSecondsLeft = 0
 local waitTeleportDrawCoords = nil
 
-local interactDistance = 3
+local interactDistance = 5.0
 local BlipData = {}
 
 --========================================
@@ -311,34 +311,25 @@ CreateThread(function()
 end)
 
 CreateThread(function()
-    local showingHelp = false
     while true do
         if isOpenUI then
-            showingHelp = false
             Wait(500)
         else
             local playerCoords = GetEntityCoords(PlayerPedId())
             local nearNpc = false
-
             for _, location in pairs(Config.Location) do
                 if IsPlayerNearLocation(location.npcLocation, playerCoords) then
                     nearNpc = true
                     break
                 end
             end
-
             if nearNpc then
-                if not showingHelp then
-                    exports["oa_helptext"]:Help('กด R เพื่อดูรายการสถานีรถไฟ')
-                    showingHelp = true
-                end
+                exports["oa_helptext"]:Help('กด R เพื่อดูรายการสถานีรถไฟ')
                 if IsControlJustPressed(0, Config.InteractionKey) then
                     OpenUI()
-                    showingHelp = false
                 end
                 Wait(0)
             else
-                showingHelp = false
                 Wait(1000)
             end
         end
