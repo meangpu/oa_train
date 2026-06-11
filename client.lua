@@ -66,6 +66,14 @@ local function IsPlayerNearLocation(coords, playerCoords)
     return GetPlayerDistanceToPos(coords, playerCoords) < interactDistance
 end
 
+local function SentPlayerMoneyToUI()
+    local playerMoney = LocalPlayer.state.Character.Money
+    SendNUIMessage({
+        type = "SetPlayerMoney",
+        money = playerMoney
+    })
+end
+
 local function SendPlayerInvToUI()
     local inventoryArray = {}
     local successInv, userInventory = pcall(exports.vorp_inventory.REQ_USERIVENTORY)
@@ -101,6 +109,7 @@ local function CloseUI()
 end
 
 local function OpenUI()
+    SentPlayerMoneyToUI()
     SendNUIMessage({ type = "OpenUI" })
     isOpenUI = true
     SetNuiFocus(true, true)

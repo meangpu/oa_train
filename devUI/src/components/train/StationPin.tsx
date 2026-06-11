@@ -9,7 +9,6 @@ import {
   distanceBetweenCoords,
   formatDistanceText,
   formatTrainStationLabel,
-  formatTravelCostText,
   formatWaitTimeText,
   getTravelCost,
   getWaitTimeSeconds,
@@ -31,6 +30,7 @@ export interface StationPinProps {
   isPlayerHere?: boolean;
   currentStationLocation?: Coord3 | null;
   currentStationLabel?: string | null;
+  playerMoney?: number;
   onClick?: (context: StationPinContext) => void;
   onHoverStart?: (stationKey: string) => void;
   onHoverEnd?: () => void;
@@ -38,6 +38,26 @@ export interface StationPinProps {
 
 const PIN_GREEN = "#37c2af";
 const PIN_HIT_SIZE = 44;
+
+function renderTravelCost(cost: number, canAfford: boolean) {
+  return (
+    <div className='flex flex-col items-center gap-0.5'>
+      <div>
+        ค่าเดินทาง{" "}
+        <span
+          className={`font-extrabold ${canAfford ? "text-green-light" : "text-red"}`}
+        >
+          ${cost.toLocaleString()}
+        </span>
+      </div>
+      {!canAfford ? (
+        <span className='text-[10px] text-red-light leading-tight'>
+          คุณมีเงินไม่พอ
+        </span>
+      ) : null}
+    </div>
+  );
+}
 
 const StationPin: React.FC<StationPinProps> = ({
   stationKey,
@@ -47,6 +67,7 @@ const StationPin: React.FC<StationPinProps> = ({
   isPlayerHere = false,
   currentStationLocation = null,
   currentStationLabel = null,
+  playerMoney = 0,
   onClick,
   onHoverStart,
   onHoverEnd,
@@ -76,7 +97,8 @@ const StationPin: React.FC<StationPinProps> = ({
       location.npcLocation,
     );
     const distanceText = formatDistanceText(distance);
-    const travelCostText = formatTravelCostText(distance);
+    const cost = getTravelCost(distance);
+    const canAfford = playerMoney >= cost;
     const waitTimeText = formatWaitTimeText(distance);
     const distanceLine = currentStationLabel
       ? `ระยะ ${distanceText}`
@@ -85,7 +107,7 @@ const StationPin: React.FC<StationPinProps> = ({
     return (
       <div className='flex flex-col items-center gap-0.5 leading-tight'>
         <span>{distanceLine}</span>
-        <span>{travelCostText}</span>
+        {renderTravelCost(cost, canAfford)}
         <span>{waitTimeText}</span>
       </div>
     );
@@ -94,6 +116,7 @@ const StationPin: React.FC<StationPinProps> = ({
     currentStationLabel,
     isPlayerHere,
     location.npcLocation,
+    playerMoney,
   ]);
 
   const { x, y } = location.npcLocation;
@@ -120,6 +143,7 @@ const StationPin: React.FC<StationPinProps> = ({
       cost = getTravelCost(distance);
       waitSeconds = getWaitTimeSeconds(cost);
     }
+    const canAfford = playerMoney >= cost;
 
     const { showModal, hideModal } = useGlobalModal.getState();
 
@@ -136,12 +160,7 @@ const StationPin: React.FC<StationPinProps> = ({
           </span>
         </div>
         <div className='flex flex-col items-center gap-1 text-sm'>
-          <div>
-            ค่าเดินทาง{" "}
-            <span className='text-green-light font-extrabold'>
-              ${cost.toLocaleString()}
-            </span>
-          </div>
+          {renderTravelCost(cost, canAfford)}
           <div>
             เวลารอ{" "}
             <span className='text-green-light font-extrabold'>
@@ -161,6 +180,7 @@ const StationPin: React.FC<StationPinProps> = ({
           <button
             type='button'
             className='btn-green me-p-sm'
+            disabled={!canAfford}
             onClick={() => {
               hideModal();
               void NuiProxy.call("TeleportToStation", {
@@ -186,6 +206,7 @@ const StationPin: React.FC<StationPinProps> = ({
     label,
     location,
     onClick,
+    playerMoney,
     stationKey,
   ]);
 

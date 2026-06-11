@@ -18,6 +18,9 @@
   --color-bg-green: #2f8277;
   --color-green-hover: #24636b;
 
+  --color-red: rgb(233, 47, 47);
+  --color-red-light: rgb(255, 147, 147);
+
   --color-red-warn: rgb(139, 14, 14);
   --color-red-warn-hover: rgba(124, 20, 20, 0.904);
 

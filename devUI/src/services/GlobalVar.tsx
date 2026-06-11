@@ -43,6 +43,9 @@ interface GlobalVarType {
   trainLocations: TrainLocations;
   setTrainLocations: (locations: TrainLocations) => void;
 
+  playerMoney: number;
+  setPlayerMoney: (money: number) => void;
+
   setDisplayRoot: (display: boolean) => void;
   CloseUIDisableClient: () => void;
   ChangeUINavPage: (page: string) => void;
@@ -94,6 +97,12 @@ const useGlobalVar = create<GlobalVarType>((set, get) => {
     trainLocations: {},
     setTrainLocations: (locations: TrainLocations) => {
       set({ trainLocations: locations ?? {} });
+    },
+
+    playerMoney: 0,
+    setPlayerMoney: (money: number) => {
+      const next = Number(money);
+      set({ playerMoney: Number.isFinite(next) ? next : 0 });
     },
 
     setDisplayRoot: (display: boolean) => {
@@ -186,6 +195,9 @@ export function useEventHandlers() {
           break;
         case "SetupConfig":
           useGlobalVar.getState().setTrainLocations(data.locations);
+          break;
+        case "SetPlayerMoney":
+          useGlobalVar.getState().setPlayerMoney(data.money);
           break;
       }
     };
