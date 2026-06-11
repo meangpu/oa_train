@@ -22,7 +22,6 @@ export { getAudioManager };
 */
 
 interface GlobalVarType {
-  MyValue: string;
   displayRoot: boolean;
   uiEnabled: boolean;
   playerLocation: { x: number; y: number; z: number };
@@ -54,7 +53,6 @@ const useGlobalVar = create<GlobalVarType>((set, get) => {
     root.style.display = displayRoot && uiEnabled ? "block" : "none";
   };
   return {
-    MyValue: "",
     displayRoot: false,
     uiEnabled: true,
     setRouterNavigate: (navigate) => {
@@ -175,11 +173,6 @@ export function useEventHandlers() {
         case "SetPlayerLocation":
           useGlobalVar.setState({
             playerLocation: data.playerLocation,
-          });
-          break;
-        case "SetClientData":
-          useGlobalVar.setState({
-            MyValue: data.MyValue,
           });
           break;
       }
