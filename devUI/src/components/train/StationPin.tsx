@@ -82,7 +82,7 @@ const StationPin: React.FC<StationPinProps> = ({
       : selected
         ? "#ffffff"
         : "#ffffff";
-  const pinOpacity = disabled ? 0.6 : 1;
+  const pinOpacity = disabled ? 0.8 : 1;
 
   const tooltipContent = useMemo(() => {
     if (!currentStationLocation) return null;
