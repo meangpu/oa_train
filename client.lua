@@ -223,13 +223,11 @@ local function FreezePlayer(waitSeconds, onComplete)
         NotifyPlayer("กำลังรออยู่แล้ว")
         return false
     end
-
     waitSeconds = tonumber(waitSeconds) or 0
     if waitSeconds < 1 then
         if onComplete then onComplete() end
         return true
     end
-
     local ped = PlayerPedId()
     isWaitTeleport = true
     waitTeleportSecondsLeft = math.floor(waitSeconds)
@@ -237,7 +235,6 @@ local function FreezePlayer(waitSeconds, onComplete)
     FreezeEntityPosition(ped, true)
     SetEntityAlpha(ped, 150, false)
     ClearPedTasks(ped)
-    PlayUIAudio("TrainGetIn.mp3")
     CreateThread(function()
         while waitTeleportSecondsLeft > 0 do
             Wait(1000)
@@ -247,6 +244,8 @@ local function FreezePlayer(waitSeconds, onComplete)
         FreezeEntityPosition(ped, false)
         isWaitTeleport = false
         waitTeleportDrawCoords = nil
+
+        PlayUIAudio("TrainGetIn.mp3")
         PlayUIAudio("TrainGetOut.mp3")
         if onComplete then onComplete() end
     end)
@@ -368,16 +367,6 @@ CreateThread(function()
         else
             Wait(500)
         end
-    end
-end)
-
-CreateThread(function()
-    while true do
-        if IsControlJustPressed(0, GetHashKey("INPUT_AIM_IN_AIR")) then -- key u INPUT_AIM_IN_AIR
-            -- ToggleUI()
-            FreezePlayer(10)
-        end
-        Citizen.Wait(7)
     end
 end)
 
