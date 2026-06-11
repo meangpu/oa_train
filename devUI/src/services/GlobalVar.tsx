@@ -209,9 +209,7 @@ export function useEventHandlers() {
           useGlobalVar.getState().setPlayerMoney(data.money);
           break;
         case "SetUserCooldown":
-          useGlobalVar
-            .getState()
-            .setUserCooldownSecondsLeft(data.secondsLeft);
+          useGlobalVar.getState().setUserCooldownSecondsLeft(data.secondsLeft);
           break;
       }
     };
