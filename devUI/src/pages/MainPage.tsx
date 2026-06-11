@@ -1,6 +1,7 @@
 import StaticTrainMap from "@/components/train/StaticTrainMap";
 import TrainPins from "@/components/train/TrainPins";
 import UserCooldownDisplay from "@/components/train/UserCooldownDisplay";
+import WaitDurationTier from "@/components/WaitDurationTier";
 import React from "react";
 
 const MainPage: React.FC = () => {
@@ -20,6 +21,9 @@ const MainPage: React.FC = () => {
       <StaticTrainMap height='h-[720px]'>
         <TrainPins />
       </StaticTrainMap>
+      <div className='absolute -right-40 flex flex-col gap-2'>
+        <WaitDurationTier />
+      </div>
     </div>
   );
 };

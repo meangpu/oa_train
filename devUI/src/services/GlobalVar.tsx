@@ -4,7 +4,14 @@ import useGlobalModal from "./GlobalModal";
 import { NuiProxy } from "./NuiProxy";
 import AudioManager from "./AudioManager";
 import { ItemData } from "@/types/ItemData";
-import { TrainLocations } from "@/types/TrainConfig";
+import { TrainLocations, WaitTimeConfig } from "@/types/TrainConfig";
+
+const DEFAULT_WAIT_TIME: WaitTimeConfig = {
+  default: 60 * 60,
+  vip_small: 45 * 60,
+  vip_medium: 30 * 60,
+  vip_large: 15 * 60,
+};
 
 const audioManager = new AudioManager({
   defaultPoolSize: 2,
@@ -42,6 +49,9 @@ interface GlobalVarType {
 
   trainLocations: TrainLocations;
   setTrainLocations: (locations: TrainLocations) => void;
+
+  waitTime: WaitTimeConfig;
+  setWaitTime: (waitTime: Partial<WaitTimeConfig>) => void;
 
   playerMoney: number;
   setPlayerMoney: (money: number) => void;
@@ -156,6 +166,19 @@ const useGlobalVar = create<GlobalVarType>((set, get) => {
       set({ trainLocations: locations ?? {} });
     },
 
+    waitTime: DEFAULT_WAIT_TIME,
+    setWaitTime: (waitTime: Partial<WaitTimeConfig>) => {
+      const next = { ...get().waitTime, ...waitTime };
+      set({
+        waitTime: {
+          default: Math.max(0, Number(next.default) || 0),
+          vip_small: Math.max(0, Number(next.vip_small) || 0),
+          vip_medium: Math.max(0, Number(next.vip_medium) || 0),
+          vip_large: Math.max(0, Number(next.vip_large) || 0),
+        },
+      });
+    },
+
     playerMoney: 0,
     setPlayerMoney: (money: number) => {
       const next = Number(money);
@@ -265,6 +288,9 @@ export function useEventHandlers() {
           break;
         case "SetupConfig":
           useGlobalVar.getState().setTrainLocations(data.locations);
+          if (data.waitTime) {
+            useGlobalVar.getState().setWaitTime(data.waitTime);
+          }
           break;
         case "SetPlayerMoney":
           useGlobalVar.getState().setPlayerMoney(data.money);

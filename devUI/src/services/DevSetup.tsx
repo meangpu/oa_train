@@ -42,6 +42,12 @@ export function useDevSetup() {
         playerInventory: generateItemData(30),
         playerLocation: { x: -1644.44, y: -1393.21, z: 83.2 },
         trainLocations: DEV_TRAIN_LOCATIONS,
+        waitTime: {
+          default: 60 * 60,
+          vip_small: 45 * 60,
+          vip_medium: 30 * 60,
+          vip_large: 15 * 60,
+        },
         playerMoney: 10000,
       });
       useGlobalVar.getState().setUserCooldownSecondsLeft(20);

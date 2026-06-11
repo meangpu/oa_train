@@ -363,6 +363,12 @@ RegisterNUICallback("NUILoaded", function(_, cb)
     SendNUIMessage({
         type = "SetupConfig",
         locations = Config.Location,
+        waitTime = {
+            default = math.floor((Config.WaitTime.default or 0) / 1000),
+            vip_small = math.floor((Config.WaitTime.vip_small or 0) / 1000),
+            vip_medium = math.floor((Config.WaitTime.vip_medium or 0) / 1000),
+            vip_large = math.floor((Config.WaitTime.vip_large or 0) / 1000),
+        },
     })
     cb('ok')
 end)

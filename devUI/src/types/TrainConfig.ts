@@ -11,3 +11,10 @@ export interface TrainStationLocation {
 }
 
 export type TrainLocations = Record<string, TrainStationLocation>;
+
+export interface WaitTimeConfig {
+  default: number;
+  vip_small: number;
+  vip_medium: number;
+  vip_large: number;
+}

@@ -70,7 +70,6 @@ export function formatTravelCostText(distance: number): ReactNode {
 export function formatCooldownRemaining(seconds: number): string {
   const total = Math.max(0, Math.ceil(seconds));
   if (total <= 0) return "0 วินาที";
-
   const hours = Math.floor(total / 3600);
   const minutes = Math.floor((total % 3600) / 60);
   const secs = total % 60;
