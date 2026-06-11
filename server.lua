@@ -142,11 +142,6 @@ RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationK
         { x = fromNpc.x, y = fromNpc.y, z = fromNpc.z }
     )
 
-    if distToFrom >= (Config.InteractDistance or 3.0) then
-        NotifyPlayer(_source, "คุณต้องอยู่ใกล้สถานีรถไฟ")
-        return
-    end
-
     local details = getTravelDetails(fromStationKey, toStationKey)
     if not details then
         NotifyPlayer(_source, "ไม่สามารถคำนวณการเดินทางได้")
@@ -167,6 +162,17 @@ RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationK
         return
     end
 
+    if distToFrom >= (Config.InteractDistance + 1.0 or 3.0) then
+        LogGuardWithSource(
+            playerName ..
+            "พยายามใช้รถไฟ โดยที่ตัวไม่อยู่ใกล้สถานี ตัวอยู่ที่ " ..
+            json.encode(playerCoords) .. " แต่ขอไปที่สถานี " .. toStationKey, _source)
+
+        NotifyPlayer(_source, "คุณต้องอยู่ใกล้สถานีรถไฟ")
+        return
+    end
+
+
     if isOnCooldown(steamHex) then
         local secondsLeft = getCooldownSecondsLeft(steamHex)
         TriggerClientEvent(eventName("ReceiveUserCooldown"), _source, secondsLeft)
@@ -179,6 +185,9 @@ RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationK
 
     local playerMoney = Character.money or 0
     if playerMoney < details.cost then
+        LogGuardWithSource(
+        playerName .. "พยายามใช้รถไฟ โดยที่มีเงินไม่พอ มีเงิน " .. playerMoney .. " แต่ต้องการใช้รถไฟ " .. details.cost,
+            _source)
         NotifyPlayer(_source, "คุณมีเงินไม่พอ")
         return
     end
