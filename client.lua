@@ -248,13 +248,14 @@ local function FreezePlayer(waitSeconds, onComplete, toStationKey)
             Wait(1000)
             waitTeleportSecondsLeft = waitTeleportSecondsLeft - 1
         end
+        PlayRandomTrainSound()
+        if onComplete then onComplete() end
+        Wait(1000)
         SetEntityAlpha(ped, 255, false)
         FreezeEntityPosition(ped, false)
         isWaitTeleport = false
         waitTeleportDrawCoords = nil
         waitTeleportToStationKey = nil
-        PlayRandomTrainSound()
-        if onComplete then onComplete() end
     end)
     return true
 end
