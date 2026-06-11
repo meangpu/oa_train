@@ -75,13 +75,14 @@ const StationPin: React.FC<StationPinProps> = ({
   onHoverEnd,
 }) => {
   const label = formatTrainStationLabel(stationKey);
-  const color = disabled
-    ? "#6b6b6b"
-    : isPlayerHere
-      ? PIN_GREEN
+  const color = isPlayerHere
+    ? PIN_GREEN
+    : disabled
+      ? "#6b6b6b"
       : selected
         ? "#ffffff"
         : "#ffffff";
+  const pinOpacity = disabled ? 0.6 : 1;
 
   const tooltipContent = useMemo(() => {
     if (!currentStationLocation) return null;
@@ -266,7 +267,7 @@ const StationPin: React.FC<StationPinProps> = ({
         <div className='train-pin-inner relative w-[22px] h-[22px] pointer-events-none'>
           <div
             className='text-[8px] absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap px-1 rounded'
-            style={{ color }}
+            style={{ color, opacity: pinOpacity }}
           >
             {label.toUpperCase()}
           </div>
@@ -274,7 +275,7 @@ const StationPin: React.FC<StationPinProps> = ({
             style={{
               color,
               fontSize: "18px",
-              opacity: disabled ? 0.6 : 1,
+              opacity: pinOpacity,
             }}
           />
           {isPlayerHere ? (
@@ -282,6 +283,7 @@ const StationPin: React.FC<StationPinProps> = ({
               className='text-[8px] absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap'
               style={{
                 color: PIN_GREEN,
+                opacity: pinOpacity,
               }}
             >
               คุณอยู่ที่นี่
