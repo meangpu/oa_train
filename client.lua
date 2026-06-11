@@ -5,7 +5,6 @@ local waitTeleportSecondsLeft = 0
 local waitTeleportDrawCoords = nil
 
 local interactDistance = 3
-local isNearAnyNpc = false
 local BlipData = {}
 
 --========================================
@@ -55,13 +54,16 @@ end)
 
 local function eventName(name) return ('%s:%s'):format(scriptName, name) end
 local function NotifyPlayer(message) TriggerEvent("vorp:TipRight", message) end
-local function GetPlayerDistanceToPos(pos) return #(GetEntityCoords(PlayerPedId()) - pos) end
+local function GetPlayerDistanceToPos(pos, fromCoords)
+    fromCoords = fromCoords or GetEntityCoords(PlayerPedId())
+    local dx = fromCoords.x - pos.x
+    local dy = fromCoords.y - pos.y
+    local dz = fromCoords.z - pos.z
+    return math.sqrt(dx * dx + dy * dy + dz * dz)
+end
 
-local function IsPlayerNearLocation(coords)
-    local playerPed = PlayerPedId()
-    local playerCoords = GetEntityCoords(playerPed)
-    local distance = #(playerCoords - coords)
-    return distance < interactDistance -- กำหนดระยะที่ต้องการ (เช่น 2.0 เมตร)
+local function IsPlayerNearLocation(coords, playerCoords)
+    return GetPlayerDistanceToPos(coords, playerCoords) < interactDistance
 end
 
 local function SendPlayerInvToUI()
@@ -309,20 +311,37 @@ CreateThread(function()
 end)
 
 CreateThread(function()
+    local showingHelp = false
     while true do
-        if not isOpenUI then
+        if isOpenUI then
+            showingHelp = false
+            Wait(500)
+        else
+            local playerCoords = GetEntityCoords(PlayerPedId())
+            local nearNpc = false
+
             for _, location in pairs(Config.Location) do
-                if IsPlayerNearLocation(location.npcLocation) then
-                    isNearAnyNpc = true
-                    exports["oa_helptext"]:Help('กด R เพื่อดูรายการสถานีรถไฟ')
+                if IsPlayerNearLocation(location.npcLocation, playerCoords) then
+                    nearNpc = true
+                    break
                 end
             end
-            if isNearAnyNpc and IsControlJustPressed(0, Config.InteractionKey) then
-                OpenUI()
-                isNearAnyNpc = false
+
+            if nearNpc then
+                if not showingHelp then
+                    exports["oa_helptext"]:Help('กด R เพื่อดูรายการสถานีรถไฟ')
+                    showingHelp = true
+                end
+                if IsControlJustPressed(0, Config.InteractionKey) then
+                    OpenUI()
+                    showingHelp = false
+                end
+                Wait(0)
+            else
+                showingHelp = false
+                Wait(1000)
             end
         end
-        Wait(isNearAnyNpc and 0 or 1000)
     end
 end)
 
