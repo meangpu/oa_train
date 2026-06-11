@@ -4,7 +4,7 @@ local isWaitTeleport = false
 local waitTeleportSecondsLeft = 0
 local waitTeleportDrawCoords = nil
 
-local interactDistance = 5.0
+local interactDistance = 3.0
 local BlipData = {}
 local nearNpc = false
 
