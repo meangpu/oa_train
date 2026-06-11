@@ -66,6 +66,50 @@ local function IsPlayerNearLocation(coords, playerCoords)
     return GetPlayerDistanceToPos(coords, playerCoords) < interactDistance
 end
 
+local function roundDownToHundred(value)
+    return math.floor(value / 100) * 100
+end
+
+local function getTravelCost(distance)
+    return roundDownToHundred(math.floor(distance + 0.5))
+end
+
+local function getWaitTimeSeconds(cost)
+    return math.floor(cost / 100)
+end
+
+local function findClosestStationKey(playerCoords)
+    local closestKey = nil
+    local minDistSq = math.huge
+
+    for key, location in pairs(Config.Location) do
+        local npc = location.npcLocation
+        local dx = playerCoords.x - npc.x
+        local dy = playerCoords.y - npc.y
+        local dz = playerCoords.z - npc.z
+        local distSq = (dx * dx) + (dy * dy) + (dz * dz)
+        if distSq < minDistSq then
+            minDistSq = distSq
+            closestKey = key
+        end
+    end
+
+    return closestKey
+end
+
+local function getTravelWaitSeconds(fromStation, toStation)
+    if not fromStation or not toStation then return 0 end
+
+    local fromNpc = fromStation.npcLocation
+    local toNpc = toStation.npcLocation
+    local distance = GetPlayerDistanceToPos(
+        { x = toNpc.x, y = toNpc.y, z = toNpc.z },
+        { x = fromNpc.x, y = fromNpc.y, z = fromNpc.z }
+    )
+    local cost = getTravelCost(distance)
+    return getWaitTimeSeconds(cost), cost
+end
+
 local function SentPlayerMoneyToUI()
     local playerMoney = LocalPlayer.state.Character.Money
     SendNUIMessage({
@@ -199,10 +243,21 @@ local function PlayUIAudio(audioName)
     SendNUIMessage({ type = "PlayAudio", audioName = audioName })
 end
 
-local function FreezePlayer()
+local function FreezePlayer(waitSeconds, onComplete)
+    if isWaitTeleport then
+        NotifyPlayer("กำลังรออยู่แล้ว")
+        return false
+    end
+
+    waitSeconds = tonumber(waitSeconds) or 0
+    if waitSeconds < 1 then
+        if onComplete then onComplete() end
+        return true
+    end
+
     local ped = PlayerPedId()
     isWaitTeleport = true
-    waitTeleportSecondsLeft = 10
+    waitTeleportSecondsLeft = math.floor(waitSeconds)
     waitTeleportDrawCoords = GetEntityCoords(ped)
     FreezeEntityPosition(ped, true)
     SetEntityAlpha(ped, 150, false)
@@ -218,7 +273,9 @@ local function FreezePlayer()
         isWaitTeleport = false
         waitTeleportDrawCoords = nil
         PlayUIAudio("TrainGetOut.mp3")
+        if onComplete then onComplete() end
     end)
+    return true
 end
 
 --========================================
@@ -252,10 +309,49 @@ end)
 RegisterNUICallback("TeleportToStation", function(data, cb)
     local locationKey = data.locationKey
     if not locationKey then
-        return NotifyPlayer("location not found")
+        NotifyPlayer("location not found")
+        cb('ok')
+        return
     end
-    TeleportToStation(locationKey)
+
+    locationKey = string.upper(locationKey)
+    local destination = Config.Location[locationKey]
+    if not destination then
+        NotifyPlayer("Unknown station: " .. tostring(locationKey))
+        cb('ok')
+        return
+    end
+
+    if isWaitTeleport then
+        NotifyPlayer("กำลังรออยู่แล้ว")
+        cb('ok')
+        return
+    end
+
+    local playerCoords = GetEntityCoords(PlayerPedId())
+    local fromKey = findClosestStationKey(playerCoords)
+    if fromKey == locationKey then
+        NotifyPlayer("คุณอยู่ที่สถานีนี้อยู่แล้ว")
+        cb('ok')
+        return
+    end
+
+    local fromStation = fromKey and Config.Location[fromKey] or nil
+    local waitSeconds, cost = getTravelWaitSeconds(fromStation, destination)
+
+    local playerMoney = LocalPlayer.state.Character and LocalPlayer.state.Character.Money or 0
+    if playerMoney < cost then
+        NotifyPlayer("คุณมีเงินไม่พอ")
+        cb('ok')
+        return
+    end
+
+    CloseUI()
     cb('ok')
+
+    FreezePlayer(waitSeconds, function()
+        TeleportToStation(locationKey)
+    end)
 end)
 
 RegisterNUICallback("NUILoaded", function(_, cb)
@@ -305,7 +401,7 @@ CreateThread(function()
     while true do
         if IsControlJustPressed(0, GetHashKey("INPUT_AIM_IN_AIR")) then -- key u INPUT_AIM_IN_AIR
             -- ToggleUI()
-            FreezePlayer()
+            FreezePlayer(10)
         end
         Citizen.Wait(7)
     end
