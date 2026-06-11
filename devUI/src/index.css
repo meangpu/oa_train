@@ -242,6 +242,12 @@ th.descending {
 .static-train-map .leaflet-container {
   height: 100%;
   width: 100%;
+  cursor: default;
+}
+
+.static-train-map .leaflet-grab,
+.static-train-map .leaflet-dragging {
+  cursor: default !important;
 }
 
 .leaflet-container.minimap-dim-overlay .leaflet-tile-pane img,

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MapContainer, ImageOverlay, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -52,54 +52,72 @@ const refreshMapSize = (map: L.Map) => {
   map.invalidateSize({ animate: false, pan: false });
 };
 
+const lockMapInteractions = (map: L.Map) => {
+  map.dragging.disable();
+  map.scrollWheelZoom.disable();
+  map.doubleClickZoom.disable();
+  map.boxZoom.disable();
+  map.keyboard.disable();
+  map.touchZoom.disable();
+};
+
 const MapViewController: React.FC<{
   center: { lat: number; lng: number };
   zoom: number;
   offset: MapViewOffset;
-}> = ({ center, zoom, offset }) => {
+  onViewLocked: () => void;
+}> = ({ center, zoom, offset, onViewLocked }) => {
   const map = useMap();
   const displayRoot = useGlobalVar((state) => state.displayRoot);
+  const viewLockedRef = useRef(false);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
-  const syncView = useCallback(() => {
+  const applyView = useCallback(() => {
     refreshMapSize(map);
     setMapViewWithOffset(map, center, zoom, offset);
-    map.dragging.disable();
-    map.scrollWheelZoom.disable();
-    map.doubleClickZoom.disable();
-    map.boxZoom.disable();
-    map.keyboard.disable();
-    map.touchZoom.disable();
-  }, [map, center.lat, center.lng, zoom, offset.x, offset.y]);
+    lockMapInteractions(map);
+  }, [map, center, zoom, offset]);
 
-  useEffect(() => {
-    syncView();
-    const raf = requestAnimationFrame(syncView);
-    const timer = window.setTimeout(syncView, 150);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.clearTimeout(timer);
-    };
-  }, [syncView]);
-
-  useEffect(() => {
-    if (!displayRoot) return;
-    syncView();
-    const raf = requestAnimationFrame(syncView);
-    const timer = window.setTimeout(syncView, 150);
-    const timer2 = window.setTimeout(syncView, 400);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.clearTimeout(timer);
-      window.clearTimeout(timer2);
-    };
-  }, [displayRoot, syncView]);
-
-  useEffect(() => {
+  const setupResizeObserver = useCallback(() => {
+    if (resizeObserverRef.current) return;
     const container = map.getContainer();
-    const observer = new ResizeObserver(syncView);
+    const observer = new ResizeObserver(applyView);
     observer.observe(container);
-    return () => observer.disconnect();
-  }, [map, syncView]);
+    resizeObserverRef.current = observer;
+  }, [map, applyView]);
+
+  const applyViewAndNotify = useCallback(() => {
+    applyView();
+    if (!viewLockedRef.current) {
+      viewLockedRef.current = true;
+      setupResizeObserver();
+      onViewLocked();
+    }
+  }, [applyView, onViewLocked, setupResizeObserver]);
+
+  useEffect(() => {
+    let cancelled = false;
+    map.whenReady(() => {
+      if (cancelled) return;
+      applyViewAndNotify();
+    });
+    return () => {
+      cancelled = true;
+      resizeObserverRef.current?.disconnect();
+      resizeObserverRef.current = null;
+    };
+  }, [map, applyViewAndNotify]);
+
+  useEffect(() => {
+    if (!displayRoot || !viewLockedRef.current) return;
+    applyView();
+    const raf = requestAnimationFrame(applyView);
+    const timer = window.setTimeout(applyView, 150);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.clearTimeout(timer);
+    };
+  }, [displayRoot, applyView]);
 
   return null;
 };
@@ -118,10 +136,12 @@ const StaticTrainMap: React.FC<StaticTrainMapProps> = ({
     () => gameToLeafletStatic(centerCoords.x, centerCoords.y),
     [centerCoords.x, centerCoords.y],
   );
+  const [viewLocked, setViewLocked] = useState(false);
+  const handleViewLocked = useCallback(() => setViewLocked(true), []);
 
   return (
     <div
-      className={`static-train-map ${height} ${width} ${className} relative overflow-hidden select-none`}
+      className={`static-train-map ${height} ${width} ${className} relative overflow-hidden select-none${viewLocked ? "" : " invisible"}`}
     >
       <MapContainer
         center={[mapCenter.lat, mapCenter.lng]}
@@ -139,12 +159,16 @@ const StaticTrainMap: React.FC<StaticTrainMapProps> = ({
         scrollWheelZoom={false}
         doubleClickZoom={false}
         touchZoom={false}
+        boxZoom={false}
+        bounceAtZoomLimits={false}
+        trackResize={false}
       >
         <ImageOverlay url={MAP_IMAGE_URL} bounds={mapBoundary} />
         <MapViewController
           center={mapCenter}
           zoom={zoom}
           offset={centerOffset}
+          onViewLocked={handleViewLocked}
         />
         {children}
       </MapContainer>
