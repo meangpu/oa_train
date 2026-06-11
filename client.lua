@@ -4,6 +4,9 @@ local isWaitTeleport = false
 local waitTeleportSecondsLeft = 0
 local waitTeleportDrawCoords = nil
 
+local interactDistance = 3
+local BlipData = {}
+
 --========================================
 --  Enable Controls
 --========================================
@@ -33,6 +36,15 @@ end)
 local function eventName(name) return ('%s:%s'):format(scriptName, name) end
 local function NotifyPlayer(message) TriggerEvent("vorp:TipRight", message) end
 local function GetPlayerDistanceToPos(pos) return #(GetEntityCoords(PlayerPedId()) - pos) end
+
+local function CreateBlipMapIcon(location)
+    local blip = BlipAddForCoords(Config.BlipIcon, location.npcLocation.x, location.npcLocation.y,
+        location.npcLocation.z)
+    SetBlipSprite(blip, Config.BlipIcon)
+    SetBlipScale(blip, 1.0)
+    SetBlipName(blip, location.label)
+    table.insert(BlipData, blip)
+end
 
 local function SendPlayerInvToUI()
     local inventoryArray = {}
@@ -105,7 +117,6 @@ local function TeleportToStation(locationKey)
     TeleportToLocation(station.exitLocation)
     return true
 end
-
 
 local drawTextScreenX, drawTextScreenY
 local DRAW_TEXT_MOVE_THRESHOLD = 0.002
