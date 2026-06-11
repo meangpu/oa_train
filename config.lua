@@ -2,6 +2,7 @@ Config = {}
 local minute = 60 * 1000
 
 Config.BlipIcon = GetHashKey("blip_ambient_train")
+Config.InteractionKey = GetHashKey("INPUT_RELOAD")
 
 Config.Location = {
     ["ARMADILO"] = {

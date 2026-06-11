@@ -5,6 +5,7 @@ local waitTeleportSecondsLeft = 0
 local waitTeleportDrawCoords = nil
 
 local interactDistance = 3
+local isNearAnyNpc = false
 local BlipData = {}
 
 --========================================
@@ -56,6 +57,12 @@ local function eventName(name) return ('%s:%s'):format(scriptName, name) end
 local function NotifyPlayer(message) TriggerEvent("vorp:TipRight", message) end
 local function GetPlayerDistanceToPos(pos) return #(GetEntityCoords(PlayerPedId()) - pos) end
 
+local function IsPlayerNearLocation(coords)
+    local playerPed = PlayerPedId()
+    local playerCoords = GetEntityCoords(playerPed)
+    local distance = #(playerCoords - coords)
+    return distance < interactDistance -- กำหนดระยะที่ต้องการ (เช่น 2.0 เมตร)
+end
 
 local function SendPlayerInvToUI()
     local inventoryArray = {}
@@ -298,6 +305,24 @@ CreateThread(function()
             FreezePlayer()
         end
         Citizen.Wait(7)
+    end
+end)
+
+CreateThread(function()
+    while true do
+        if not isOpenUI then
+            for _, location in pairs(Config.Location) do
+                if IsPlayerNearLocation(location.npcLocation) then
+                    isNearAnyNpc = true
+                    exports["oa_helptext"]:Help('กด R เพื่อดูรายการสถานีรถไฟ')
+                end
+            end
+            if isNearAnyNpc and IsControlJustPressed(0, Config.InteractionKey) then
+                OpenUI()
+                isNearAnyNpc = false
+            end
+        end
+        Wait(isNearAnyNpc and 0 or 1000)
     end
 end)
 
