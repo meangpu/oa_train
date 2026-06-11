@@ -114,18 +114,6 @@ RegisterCommand("t_db_delete", function(source, args, rawCommand)
 end, true)
 
 
-RegisterCommand("t_buy_tebex", function(source, args, rawCommand)
-    -- source จะเป็น 0 เพราะเป็นคำสั่งจาก console
-    -- args[1] ที่ setup ในเว็ปต้องเป็น id ละมันจะเป็น fiveM:id ของคนเล่น
-    local fivemId = args[1]
-    if not fivemId then return print("fivemId not found") end
-    local _source = exports.oa_lib:getSourceFromFivemId(fivemId)
-    if not _source then return print("source not found") end
-    -- LogDataDog()
-    -- log discord
-end, true)
-
-
 --==========================
 --  End of Script
 --==========================

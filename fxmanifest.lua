@@ -7,9 +7,7 @@ lua54 'yes'
 -- escrow_ignore {}
 shared_script 'config.lua'
 client_script 'client.lua'
-server_scripts {
-    '@oxmysql/lib/MySQL.lua',
-    'server/*.lua'
-}
+server_script 'server.lua'
+
 files { 'html/***' }
 ui_page('html/index.html')
