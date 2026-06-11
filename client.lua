@@ -36,8 +36,7 @@ end
 
 AddEventHandler("onClientResourceStart", function(resource)
     if scriptName ~= resource then return end
-    print(scriptName .. ": client start")
-    for k, v in pairs(Config.Location) do
+    for _, v in pairs(Config.Location) do
         CreateBlipMapIcon(v)
     end
 end)
