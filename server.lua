@@ -26,13 +26,11 @@ end
 local function getCooldownSecondsLeft(steamHex)
     local finishAt = teleportCooldownBySteamHex[steamHex]
     if not finishAt then return 0 end
-
     local secondsLeft = finishAt - os.time()
     if secondsLeft <= 0 then
         teleportCooldownBySteamHex[steamHex] = nil
         return 0
     end
-
     return secondsLeft
 end
 
@@ -234,7 +232,6 @@ RegisterServerEvent(eventName("RequestUserCooldown"), function()
         TriggerClientEvent(eventName("ReceiveUserCooldown"), _source, 0)
         return
     end
-
     local steamHex = getPlayerSteamHex(User.getUsedCharacter)
     TriggerClientEvent(
         eventName("ReceiveUserCooldown"),
