@@ -30,11 +30,14 @@ export interface StationPinProps {
   currentStationLocation?: Coord3 | null;
   currentStationLabel?: string | null;
   onClick?: (context: StationPinContext) => void;
-  onHoverStart?: () => void;
+  onHoverStart?: (stationKey: string) => void;
   onHoverEnd?: () => void;
 }
 
 const PIN_GREEN = "#37c2af";
+
+const PIN_HIT_SIZE = 44;
+const PIN_VISUAL_SIZE = 22;
 
 const createTrainPinIcon = (
   label: string,
@@ -50,43 +53,52 @@ const createTrainPinIcon = (
         ? "#ffffff"
         : "#ffffff";
   const iconMarkup = renderToStaticMarkup(
-    <div className='train-pin-inner relative w-[22px] h-[22px]'>
-      <div
-        className='text-[8px] absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap px-1 rounded '
-        style={{
-          color,
-        }}
-      >
-        {label.toUpperCase()}
-      </div>
-      <FaTrain
-        style={{
-          color,
-          fontSize: "18px",
-          filter: "drop-shadow(0 0 2px rgba(0,0,0,0.9))",
-          opacity: disabled ? 0.6 : 1,
-        }}
-      />
-      {isPlayerHere ? (
+    <div
+      className='train-pin-hit flex items-center justify-center'
+      style={{ width: PIN_HIT_SIZE, height: PIN_HIT_SIZE }}
+      role='button'
+      aria-label={label}
+    >
+      <div className='train-pin-inner relative w-[22px] h-[22px] pointer-events-none'>
         <div
-          className='text-[8px] absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap'
+          className='text-[8px] absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap px-1 rounded '
           style={{
-            color: PIN_GREEN,
-            textShadow: "0 0 3px rgba(0,0,0,0.9)",
+            color,
           }}
         >
-          คุณอยู่ที่นี่{" "}
+          {label.toUpperCase()}
         </div>
-      ) : null}
+        <FaTrain
+          style={{
+            color,
+            fontSize: "18px",
+            filter: "drop-shadow(0 0 2px rgba(0,0,0,0.9))",
+            opacity: disabled ? 0.6 : 1,
+          }}
+        />
+        {isPlayerHere ? (
+          <div
+            className='text-[8px] absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap'
+            style={{
+              color: PIN_GREEN,
+              textShadow: "0 0 3px rgba(0,0,0,0.9)",
+            }}
+          >
+            คุณอยู่ที่นี่{" "}
+          </div>
+        ) : null}
+      </div>
     </div>,
   );
 
+  const anchorY = PIN_HIT_SIZE / 2 + (isPlayerHere ? 3 : 0);
+
   return L.divIcon({
     html: iconMarkup,
-    className: "train-pin-icon",
-    iconSize: [22, 22],
-    iconAnchor: [11, isPlayerHere ? 14 : 11],
-    popupAnchor: [0, -11],
+    className: `train-pin-icon${disabled ? " train-pin-disabled" : ""}`,
+    iconSize: [PIN_HIT_SIZE, PIN_HIT_SIZE],
+    iconAnchor: [PIN_HIT_SIZE / 2, anchorY],
+    popupAnchor: [0, -PIN_VISUAL_SIZE / 2],
   });
 };
 
@@ -149,6 +161,23 @@ const StationPin: React.FC<StationPinProps> = ({
     onClick?.({ stationKey, label, location });
   }, [disabled, onClick, stationKey, label, location]);
 
+  const handleMouseOver = useCallback(() => {
+    onHoverStart?.(stationKey);
+  }, [onHoverStart, stationKey]);
+
+  const handleMouseOut = useCallback(() => {
+    onHoverEnd?.();
+  }, [onHoverEnd]);
+
+  const eventHandlers = useMemo(
+    () => ({
+      click: handleClick,
+      mouseover: handleMouseOver,
+      mouseout: handleMouseOut,
+    }),
+    [handleClick, handleMouseOver, handleMouseOut],
+  );
+
   if (
     x === undefined ||
     y === undefined ||
@@ -162,17 +191,14 @@ const StationPin: React.FC<StationPinProps> = ({
     <Marker
       position={gameToLeafletStatic(x, y)}
       icon={icon}
-      eventHandlers={{
-        click: handleClick,
-        mouseover: onHoverStart,
-        mouseout: onHoverEnd,
-      }}
+      eventHandlers={eventHandlers}
     >
       {tooltipContent ? (
         <Tooltip
           direction='top'
           offset={[0, -34]}
           opacity={1}
+          interactive
           className='train-pin-tooltip'
         >
           {tooltipContent}

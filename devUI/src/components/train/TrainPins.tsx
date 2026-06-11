@@ -100,7 +100,7 @@ const TrainPins: React.FC<TrainPinsProps> = ({
           currentStationLocation={currentStationLocation}
           currentStationLabel={currentStationLabel}
           onClick={onStationClick}
-          onHoverStart={() => handleHoverStart(stationKey)}
+          onHoverStart={handleHoverStart}
           onHoverEnd={handleHoverEnd}
         />
       ))}

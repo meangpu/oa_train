@@ -282,6 +282,8 @@ th.descending {
   font-size: 12px;
   padding: 4px 8px;
   border-radius: 4px;
+  transition: none !important;
+  pointer-events: auto;
 }
 
 .leaflet-tooltip.train-pin-tooltip::before {
@@ -293,14 +295,27 @@ th.descending {
   color: #37c2af;
 }
 
+.train-pin-icon {
+  cursor: pointer;
+  background: transparent !important;
+  border: none !important;
+}
+
+.train-pin-icon.train-pin-disabled {
+  cursor: not-allowed;
+}
+
+.train-pin-icon .train-pin-hit {
+  background: transparent;
+}
+
 .train-pin-icon .train-pin-inner {
-  transform: scale(1);
-  transform-origin: center center;
-  transition: transform 0.2s ease-in-out;
+  opacity: 0.9;
+  transition: opacity 0.15s ease-in-out;
 }
 
 .train-pin-icon:hover .train-pin-inner {
-  transform: scale(1.05);
+  opacity: 1;
 }
 
 .train-pin-icon:hover {
