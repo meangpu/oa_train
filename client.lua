@@ -180,7 +180,7 @@ local function DrawText3D(x, y, z, text, bgWidth)
     end
     local _x, _y = dampScreenCoord(rawX, rawY)
     local str = CreateVarString(10, "LITERAL_STRING", text, Citizen.ResultAsLong())
-    SetTextScale(0.30, 0.30)
+    SetTextScale(0.33, 0.33)
     SetTextFontForCurrentCommand(1)
     SetTextColor(255, 255, 255, 215)
     SetTextCentre(true)
@@ -351,7 +351,7 @@ CreateThread(function()
             DrawText3D(
                 waitTeleportDrawCoords.x,
                 waitTeleportDrawCoords.y,
-                waitTeleportDrawCoords.z + 1.0,
+                waitTeleportDrawCoords.z + 0.97,
                 displayText,
                 string.len(displayText)
             )
