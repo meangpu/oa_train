@@ -108,22 +108,6 @@ local function LogGuardWithSource(message, source)
     end
 end
 
-local function CheckAdmin(source)
-    local User = vorpCore.getUser(source)
-    if not User or not User.getUsedCharacter then
-        return false
-    end
-    local Character = User.getUsedCharacter
-    local name = (Character.firstname or "") .. " " .. (Character.lastname or "")
-    -- DISCORD here
-    if Character.group ~= 'admin' then
-        LogGuardWithSource("มีคนพยายามใช้ me_admin โดยไม่ใช่ admin คนนั้นคือ [" .. name .. "]", source)
-        exports.oa_guard:DoKick(source)
-        return false
-    end
-    return true
-end
-
 --==========================
 --  Event Handlers
 --==========================
@@ -262,9 +246,4 @@ RegisterCommand("train_cooldown", function(source, args, rawCommand)
     else
         NotifyPlayer(_source, "คุณสามารถใช้งานรถไฟได้แล้ว")
     end
-end, true)
-
-
---==========================
---  End of Script
---==========================
+end, false)
