@@ -17,8 +17,11 @@ export interface StationPinProps {
   location: TrainStationLocation;
   selected?: boolean;
   disabled?: boolean;
+  isPlayerHere?: boolean;
   onClick?: (context: StationPinContext) => void;
 }
+
+const PIN_GREEN = "#37c2af";
 
 const formatStationLabel = (stationKey: string) =>
   stationKey
@@ -30,9 +33,16 @@ const formatStationLabel = (stationKey: string) =>
 const createTrainPinIcon = (
   label: string,
   selected = false,
-  disabled = false
+  disabled = false,
+  isPlayerHere = false
 ) => {
-  const color = disabled ? "#6b6b6b" : selected ? "#f5c542" : "#e8d4a8";
+  const color = disabled
+    ? "#6b6b6b"
+    : isPlayerHere
+      ? PIN_GREEN
+      : selected
+        ? "#f5c542"
+        : "#e8d4a8";
   const iconMarkup = renderToStaticMarkup(
     <div className='relative w-[22px] h-[22px]'>
       <div
@@ -52,6 +62,17 @@ const createTrainPinIcon = (
           opacity: disabled ? 0.6 : 1,
         }}
       />
+      {isPlayerHere ? (
+        <div
+          className='text-[8px] absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap'
+          style={{
+            color: PIN_GREEN,
+            textShadow: "0 0 3px rgba(0,0,0,0.9)",
+          }}
+        >
+          คุณอยู่นี่
+        </div>
+      ) : null}
     </div>
   );
 
@@ -59,7 +80,7 @@ const createTrainPinIcon = (
     html: iconMarkup,
     className: "train-pin-icon",
     iconSize: [22, 22],
-    iconAnchor: [11, 11],
+    iconAnchor: [11, isPlayerHere ? 14 : 11],
     popupAnchor: [0, -11],
   });
 };
@@ -69,12 +90,13 @@ const StationPin: React.FC<StationPinProps> = ({
   location,
   selected = false,
   disabled = false,
+  isPlayerHere = false,
   onClick,
 }) => {
   const label = formatStationLabel(stationKey);
   const icon = useMemo(
-    () => createTrainPinIcon(label, selected, disabled),
-    [label, selected, disabled]
+    () => createTrainPinIcon(label, selected, disabled, isPlayerHere),
+    [label, selected, disabled, isPlayerHere]
   );
   const { x, y } = location.npcLocation;
 
