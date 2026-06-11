@@ -83,6 +83,47 @@ const MapController: React.FC<{
   return null;
 };
 
+const refreshMapSize = (map: L.Map) => {
+  map.invalidateSize({ animate: false, pan: false });
+};
+
+const MapInvalidateSize: React.FC = () => {
+  const map = useMap();
+  const displayRoot = useGlobalVar((state) => state.displayRoot);
+
+  useEffect(() => {
+    refreshMapSize(map);
+    const raf = requestAnimationFrame(() => refreshMapSize(map));
+    const timer = window.setTimeout(() => refreshMapSize(map), 150);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.clearTimeout(timer);
+    };
+  }, [map]);
+
+  useEffect(() => {
+    if (!displayRoot) return;
+    refreshMapSize(map);
+    const raf = requestAnimationFrame(() => refreshMapSize(map));
+    const timer = window.setTimeout(() => refreshMapSize(map), 150);
+    const timer2 = window.setTimeout(() => refreshMapSize(map), 400);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.clearTimeout(timer);
+      window.clearTimeout(timer2);
+    };
+  }, [displayRoot, map]);
+
+  useEffect(() => {
+    const container = map.getContainer();
+    const observer = new ResizeObserver(() => refreshMapSize(map));
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [map]);
+
+  return null;
+};
+
 const createCustomIcon = () => {
   const iconMarkup = renderToStaticMarkup(
     <div className='relative w-[20px] h-[20px]'>
@@ -211,11 +252,13 @@ const MiniMap = React.memo(
 
       const handleMapReady = useCallback((map: L.Map) => {
         mapRef.current = map;
+        refreshMapSize(map);
         if (lastCoords.current) {
           const storedCoords = lastCoords.current;
           const mapCoords = gameToLeaflet(storedCoords.x, storedCoords.y);
           map.setView([mapCoords.lat, mapCoords.lng], DEFAULT_ZOOM);
         }
+        window.setTimeout(() => refreshMapSize(map), 150);
       }, []);
 
       const handleMarkerRef = useCallback((marker: L.Marker | null) => {
@@ -242,11 +285,13 @@ const MiniMap = React.memo(
               zoom={DEFAULT_ZOOM}
               minZoom={2}
               maxZoom={7}
+              maxBounds={mapBoundary}
+              maxBoundsViscosity={1}
               className='h-full w-full relative z-10'
               zoomControl={false}
               attributionControl={false}
               crs={L.CRS.Simple}
-              preferCanvas={true}
+              preferCanvas={false}
               keyboard={false}
             >
               <TileLayer
@@ -257,7 +302,9 @@ const MiniMap = React.memo(
                 tileSize={256}
                 noWrap={true}
                 bounds={mapBoundary}
+                keepBuffer={4}
               />
+              <MapInvalidateSize />
               <MapController coords={coords} onMapReady={handleMapReady} />
               {showDestinationMarker ? (
                 <Marker

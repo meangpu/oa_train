@@ -238,3 +238,10 @@ th.descending {
 .leaflet-container {
   background-color: #3d3d3d !important;
 }
+
+/* Tailwind preflight sets img { max-width: 100% } which breaks leaflet tiles in prod builds */
+.leaflet-container img,
+.leaflet-tile {
+  max-width: none !important;
+  max-height: none !important;
+}
