@@ -13,6 +13,7 @@ const MainPage: React.FC = () => {
         width='w-[1416px]'
         showPlayerLocation={false}
         showDestinationMarker={false}
+        dimMapOverlay
       >
         <TrainPins />
       </MiniMap>

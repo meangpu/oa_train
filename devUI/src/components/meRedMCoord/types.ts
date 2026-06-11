@@ -14,6 +14,7 @@ export interface MiniMapProps {
   className?: string;
   showPlayerLocation?: boolean;
   showDestinationMarker?: boolean;
+  dimMapOverlay?: boolean;
   children?: ReactNode;
 }
 

@@ -36,15 +36,15 @@ const createTrainPinIcon = (
   label: string,
   selected = false,
   disabled = false,
-  isPlayerHere = false
+  isPlayerHere = false,
 ) => {
   const color = disabled
     ? "#6b6b6b"
     : isPlayerHere
       ? PIN_GREEN
       : selected
-        ? "#f5c542"
-        : "#e8d4a8";
+        ? "#ffffff"
+        : "#ffffff";
   const iconMarkup = renderToStaticMarkup(
     <div className='train-pin-inner relative w-[22px] h-[22px]'>
       <div
@@ -75,7 +75,7 @@ const createTrainPinIcon = (
           คุณอยู่นี่
         </div>
       ) : null}
-    </div>
+    </div>,
   );
 
   return L.divIcon({
@@ -102,14 +102,14 @@ const StationPin: React.FC<StationPinProps> = ({
   const label = formatTrainStationLabel(stationKey);
   const icon = useMemo(
     () => createTrainPinIcon(label, selected, disabled, isPlayerHere),
-    [label, selected, disabled, isPlayerHere]
+    [label, selected, disabled, isPlayerHere],
   );
   const tooltipText = useMemo(() => {
     if (!currentStationLocation) return null;
     if (isPlayerHere) return "คุณอยู่ที่นี่";
     const distanceText = distanceBetweenCoordsText(
       currentStationLocation,
-      location.npcLocation
+      location.npcLocation,
     );
     if (!distanceText) return null;
     return currentStationLabel
@@ -128,7 +128,12 @@ const StationPin: React.FC<StationPinProps> = ({
     onClick?.({ stationKey, label, location });
   }, [disabled, onClick, stationKey, label, location]);
 
-  if (x === undefined || y === undefined || Number.isNaN(x) || Number.isNaN(y)) {
+  if (
+    x === undefined ||
+    y === undefined ||
+    Number.isNaN(x) ||
+    Number.isNaN(y)
+  ) {
     return null;
   }
 

@@ -179,6 +179,7 @@ const MiniMap = React.memo(
         className = "",
         showPlayerLocation = true,
         showDestinationMarker: showDestinationMarkerProp = true,
+        dimMapOverlay = true,
         children,
       },
       ref,
@@ -283,7 +284,7 @@ const MiniMap = React.memo(
               maxZoom={3}
               maxBounds={mapBoundary}
               maxBoundsViscosity={1}
-              className='h-full w-full relative z-10'
+              className={`h-full w-full relative z-10${dimMapOverlay ? " minimap-dim-overlay" : ""}`}
               zoomControl={false}
               attributionControl={false}
               crs={L.CRS.Simple}
