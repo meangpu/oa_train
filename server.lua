@@ -23,15 +23,20 @@ local function getPlayerCooldownMs(_source, Character)
     return Config.WaitTime.default
 end
 
-local function getCooldownSecondsLeft(steamHex)
+local function getCooldownEndsAt(steamHex)
     local finishAt = teleportCooldownBySteamHex[steamHex]
     if not finishAt then return 0 end
-    local secondsLeft = finishAt - os.time()
-    if secondsLeft <= 0 then
+    if finishAt <= os.time() then
         teleportCooldownBySteamHex[steamHex] = nil
         return 0
     end
-    return secondsLeft
+    return finishAt
+end
+
+local function getCooldownSecondsLeft(steamHex)
+    local finishAt = getCooldownEndsAt(steamHex)
+    if finishAt <= 0 then return 0 end
+    return finishAt - os.time()
 end
 
 local function isOnCooldown(steamHex)
@@ -175,7 +180,7 @@ RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationK
 
     if isOnCooldown(steamHex) then
         local secondsLeft = getCooldownSecondsLeft(steamHex)
-        TriggerClientEvent(eventName("ReceiveUserCooldown"), _source, secondsLeft)
+        TriggerClientEvent(eventName("ReceiveUserCooldown"), _source, getCooldownEndsAt(steamHex))
         NotifyPlayer(
             _source,
             ("คุณใช้งานรถไฟได้อีกครั้งใน %s"):format(formatCooldownRemaining(secondsLeft))
@@ -197,7 +202,7 @@ RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationK
     end
 
     setCooldown(steamHex, getPlayerCooldownMs(_source, Character))
-    TriggerClientEvent(eventName("ReceiveUserCooldown"), _source, getCooldownSecondsLeft(steamHex))
+    TriggerClientEvent(eventName("ReceiveUserCooldown"), _source, getCooldownEndsAt(steamHex))
 
     local fromLabel = Config.Location[fromStationKey].label or fromStationKey
     local toLabel = Config.Location[toStationKey].label or toStationKey
@@ -230,7 +235,7 @@ RegisterServerEvent(eventName("RequestUserCooldown"), function()
     TriggerClientEvent(
         eventName("ReceiveUserCooldown"),
         _source,
-        getCooldownSecondsLeft(steamHex)
+        getCooldownEndsAt(steamHex)
     )
 end)
 
@@ -246,7 +251,7 @@ RegisterCommand("train_cooldown", function(source, args, rawCommand)
     end
     local steamHex = getPlayerSteamHex(User.getUsedCharacter)
     local secondsLeft = getCooldownSecondsLeft(steamHex)
-    TriggerClientEvent(eventName("ReceiveUserCooldown"), _source, secondsLeft)
+    TriggerClientEvent(eventName("ReceiveUserCooldown"), _source, getCooldownEndsAt(steamHex))
     if secondsLeft > 0 then
         NotifyPlayer(
             _source,

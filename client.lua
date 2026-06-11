@@ -10,7 +10,7 @@ local BlipData = {}
 local nearNpc = false
 local TrainSounds = { "TrainGetIn.mp3", "TrainGetOut.mp3" }
 
-local trainUseCooldown = 0
+local trainUseCooldownEndsAt = nil -- nil = not yet synced from server; 0 = no active cooldown
 
 --========================================
 --  Enable Controls
@@ -97,7 +97,35 @@ local function SentPlayerMoneyToUI()
 end
 
 
+local function getTrainUseCooldownSecondsLeft()
+    if trainUseCooldownEndsAt == nil or trainUseCooldownEndsAt <= 0 then
+        return 0
+    end
+    print("--------------------------------")
+    print(trainUseCooldownEndsAt)
+    print(GetCloudTimeAsInt())
+    print("--------------------------------")
+    local secondsLeft = trainUseCooldownEndsAt - GetCloudTimeAsInt()
+    print(secondsLeft)
+    if secondsLeft <= 0 then
+        trainUseCooldownEndsAt = 0
+        return 0
+    end
+    return math.floor(secondsLeft)
+end
+
+local function syncUserCooldownToUI()
+    SendNUIMessage({
+        type = "SetUserCooldown",
+        secondsLeft = getTrainUseCooldownSecondsLeft(),
+    })
+end
+
 local function RequestUserCooldownFromServer()
+    if trainUseCooldownEndsAt ~= nil then
+        syncUserCooldownToUI()
+        return
+    end
     TriggerServerEvent(eventName("RequestUserCooldown"))
 end
 
@@ -272,12 +300,13 @@ RegisterNetEvent("oa_lib:forceCloseNuiFocus", function()
     CloseUI()
 end)
 
-RegisterNetEvent(eventName("ReceiveUserCooldown"), function(secondsLeft)
-    trainUseCooldown = math.max(0, math.floor(tonumber(secondsLeft) or 0))
-    SendNUIMessage({
-        type = "SetUserCooldown",
-        secondsLeft = trainUseCooldown,
-    })
+RegisterNetEvent(eventName("ReceiveUserCooldown"), function(cooldownEndsAt)
+    cooldownEndsAt = tonumber(cooldownEndsAt) or 0
+    if cooldownEndsAt > 0 and cooldownEndsAt <= GetCloudTimeAsInt() then
+        cooldownEndsAt = 0
+    end
+    trainUseCooldownEndsAt = cooldownEndsAt
+    syncUserCooldownToUI()
 end)
 
 RegisterNetEvent(eventName("TeleportToStationApproved"), function(data)
@@ -408,4 +437,7 @@ end)
 --  Commands
 --========================================
 RegisterCommand("train_close", CloseUI, false)
+RegisterCommand("train_time", function()
+    print(GetCloudTimeAsInt())
+end, false)
 -- RegisterCommand("train_open", OpenUI, false)
