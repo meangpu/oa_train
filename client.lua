@@ -82,7 +82,7 @@ local function ChangeUINavPage(page)
 end
 
 local function TeleportToLocation(loc)
-    DoScreenFadeOut(1000)
+    DoScreenFadeOut(500)
     while IsScreenFadingOut() do
         Wait(0)
     end
@@ -91,8 +91,9 @@ local function TeleportToLocation(loc)
     if loc.w then
         SetEntityHeading(ped, loc.w)
     end
-    Wait(2000)
-    DoScreenFadeIn(1000)
+    Wait(1000)
+    DoScreenFadeIn(500)
+    SendPlayerLocationToUI()
 end
 
 local function TeleportToStation(locationKey)
@@ -216,7 +217,7 @@ RegisterNUICallback("NUIFocusOff", function(_, cb)
     cb('ok')
 end)
 
-RegisterNUICallback("TeleportToStation", function(_, cb)
+RegisterNUICallback("TeleportToStation", function(data, cb)
     local locationKey = data.locationKey
     if not locationKey then
         return NotifyPlayer("location not found")

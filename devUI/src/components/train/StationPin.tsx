@@ -2,6 +2,7 @@ import React, { useCallback, useMemo } from "react";
 import { FaTrain } from "react-icons/fa";
 import { gameToStaticMapPixel } from "@/components/meRedMCoord/mapCoords";
 import { useStaticTrainMapScale } from "@/components/train/StaticTrainMap";
+import { NuiProxy } from "@/services/NuiProxy";
 import {
   Coord3,
   distanceBetweenCoords,
@@ -97,9 +98,10 @@ const StationPin: React.FC<StationPinProps> = ({
   const pinScreenScale = 1 / mapScale;
 
   const handleClick = useCallback(() => {
-    if (disabled) return;
+    if (disabled || isPlayerHere) return;
+    void NuiProxy.call("TeleportToStation", { locationKey: stationKey });
     onClick?.({ stationKey, label, location });
-  }, [disabled, onClick, stationKey, label, location]);
+  }, [disabled, isPlayerHere, onClick, stationKey, label, location]);
 
   const handleMouseEnter = useCallback(() => {
     onHoverStart?.(stationKey);
@@ -122,7 +124,7 @@ const StationPin: React.FC<StationPinProps> = ({
 
   return (
     <div
-      className={`train-pin absolute${disabled ? " train-pin-disabled" : ""}`}
+      className={`train-pin absolute${disabled ? " train-pin-disabled" : ""}${isPlayerHere ? " train-pin-here" : ""}`}
       style={{
         left: position.x,
         top: position.y,

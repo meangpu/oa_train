@@ -295,6 +295,10 @@ th.descending {
   cursor: not-allowed;
 }
 
+.train-pin.train-pin-here {
+  cursor: default;
+}
+
 .train-pin .train-pin-hit {
   background: transparent;
   position: relative;
