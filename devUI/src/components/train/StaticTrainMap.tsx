@@ -26,7 +26,7 @@ const setMapViewWithOffset = (
   map: L.Map,
   center: { lat: number; lng: number },
   zoom: number,
-  offset: MapViewOffset
+  offset: MapViewOffset,
 ) => {
   const latLng = L.latLng(center.lat, center.lng);
   if (!offset.x && !offset.y) {
@@ -116,7 +116,7 @@ const StaticTrainMap: React.FC<StaticTrainMapProps> = ({
 }) => {
   const mapCenter = useMemo(
     () => gameToLeafletStatic(centerCoords.x, centerCoords.y),
-    [centerCoords.x, centerCoords.y]
+    [centerCoords.x, centerCoords.y],
   );
 
   return (
