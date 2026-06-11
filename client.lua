@@ -24,6 +24,16 @@ local freezeControlsToEnable = {
 --  Enable Controls
 --========================================
 
+local function CreateBlipMapIcon(location)
+    print("CreateBlipMapIcon: " .. location.label)
+    local blip = BlipAddForCoords(-250506368, location.npcLocation.x, location.npcLocation.y,
+        location.npcLocation.z)
+    SetBlipSprite(blip, -250506368)
+    SetBlipScale(blip, 1.0)
+    SetBlipName(blip, location.label)
+    table.insert(BlipData, blip)
+end
+
 AddEventHandler("onClientResourceStart", function(resource)
     if scriptName ~= resource then return end
     print(scriptName .. ": client start")
@@ -47,15 +57,6 @@ local function eventName(name) return ('%s:%s'):format(scriptName, name) end
 local function NotifyPlayer(message) TriggerEvent("vorp:TipRight", message) end
 local function GetPlayerDistanceToPos(pos) return #(GetEntityCoords(PlayerPedId()) - pos) end
 
-local function CreateBlipMapIcon(location)
-    print(json.encode(location, { indent = true }))
-    local blip = BlipAddForCoords(Config.BlipIcon, location.npcLocation.x, location.npcLocation.y,
-        location.npcLocation.z)
-    SetBlipSprite(blip, Config.BlipIcon)
-    SetBlipScale(blip, 1.0)
-    SetBlipName(blip, location.label)
-    table.insert(BlipData, blip)
-end
 
 local function SendPlayerInvToUI()
     local inventoryArray = {}
