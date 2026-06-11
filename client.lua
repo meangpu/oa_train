@@ -25,10 +25,9 @@ local freezeControlsToEnable = {
 --========================================
 
 local function CreateBlipMapIcon(location)
-    print("CreateBlipMapIcon: " .. location.label)
-    local blip = BlipAddForCoords(-250506368, location.npcLocation.x, location.npcLocation.y,
-        location.npcLocation.z)
-    SetBlipSprite(blip, -250506368)
+    local coords = location.npcLocation
+    local blip = BlipAddForCoords(1664425300, coords.x, coords.y, coords.z)
+    SetBlipSprite(blip, Config.BlipIcon)
     SetBlipScale(blip, 1.0)
     SetBlipName(blip, location.label)
     table.insert(BlipData, blip)
