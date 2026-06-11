@@ -12,6 +12,21 @@ const LEAFLET_MAX_LNG = 176;
 const LEAFLET_RANGE_LAT = LEAFLET_MAX_LAT - LEAFLET_MIN_LAT;
 const LEAFLET_RANGE_LNG = LEAFLET_MAX_LNG - LEAFLET_MIN_LNG;
 
+export const LEAFLET_MAP_SW: [number, number] = [
+  LEAFLET_MIN_LAT,
+  LEAFLET_MIN_LNG,
+];
+export const LEAFLET_MAP_NE: [number, number] = [
+  LEAFLET_MAX_LAT,
+  LEAFLET_MAX_LNG,
+];
+export const LEAFLET_MAP_BOUNDS = {
+  width: LEAFLET_RANGE_LNG,
+  height: LEAFLET_RANGE_LAT,
+} as const;
+
+export const MAP_ZOOM = 3;
+
 export const MAP_CENTER_COORDS = {
   x: (GAME_MIN_X + GAME_MAX_X) / 2,
   y: (GAME_MIN_Y + GAME_MAX_Y) / 2,
@@ -32,3 +47,7 @@ export const gameToLeaflet = (
   const lat = LEAFLET_MIN_LAT + normalizedY * LEAFLET_RANGE_LAT;
   return { lat, lng };
 };
+
+export const mapCenterToLeaflet = () =>
+  gameToLeaflet(MAP_CENTER_COORDS.x, MAP_CENTER_COORDS.y);
+

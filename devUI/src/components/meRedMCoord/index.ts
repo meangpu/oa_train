@@ -11,5 +11,10 @@ export type {
 } from "./types";
 
 export { parseVector3String } from "./types";
-export { gameToLeaflet, MAP_CENTER_COORDS } from "./mapCoords";
+export {
+  gameToLeaflet,
+  MAP_CENTER_COORDS,
+  MAP_ZOOM,
+  LEAFLET_MAP_BOUNDS,
+} from "./mapCoords";
 

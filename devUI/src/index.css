@@ -239,11 +239,18 @@ th.descending {
   background-color: #252525 !important;
 }
 
-.leaflet-container.minimap-dim-overlay .leaflet-tile-pane img {
+.static-train-map .leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
+.leaflet-container.minimap-dim-overlay .leaflet-tile-pane img,
+.leaflet-container.minimap-dim-overlay .leaflet-image-layer {
   filter: brightness(0.6);
 }
 
-.leaflet-container.minimap-dim-overlay .leaflet-tile-pane::after {
+.leaflet-container.minimap-dim-overlay .leaflet-tile-pane::after,
+.leaflet-container.minimap-dim-overlay .leaflet-overlay-pane::before {
   content: "";
   position: absolute;
   top: 0;
