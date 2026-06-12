@@ -10,7 +10,7 @@ end)
 local function eventName(name) return ('%s:%s'):format(scriptName, name) end
 local function NotifyPlayer(source, message) TriggerClientEvent("vorp:TipRight", source, message) end
 local function LogDataDog(message, source)
-    print(message)
+    -- print(message)
     TriggerEvent('oa_logs:sendtodiscord', scriptName, message, source)
 end
 
@@ -312,7 +312,6 @@ RegisterCommand("train_getTier", function(source, args, rawCommand)
         print(tier)
     end)
 end, false)
-
 
 RegisterCommand("remove_train_cooldown", function(source, args, rawCommand)
     local targetSource = tonumber(args[1])
