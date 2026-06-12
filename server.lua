@@ -1,6 +1,8 @@
 local scriptName = GetCurrentResourceName()
 local vorpCore = exports.vorp_core:GetCore()
 local teleportCooldownBySteamHex = {}
+-- Approved teleports that are still counting down; used to validate/refund cancels
+local pendingTeleportBySteamHex = {}
 
 AddEventHandler("onResourceStart", function(resource)
     if scriptName ~= resource then return end
@@ -227,6 +229,10 @@ RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationK
 
     getPlayerCooldownMs(Character, function(cooldownMs)
         setCooldown(steamHex, cooldownMs)
+        pendingTeleportBySteamHex[steamHex] = {
+            cost = details.cost,
+            expiresAt = os.time() + details.waitSeconds,
+        }
         TriggerClientEvent(eventName("ReceiveUserCooldown"), _source, getCooldownEndsAt(steamHex))
         local fromLabel = Config.Location[fromStationKey].label or fromStationKey
         local toLabel = Config.Location[toStationKey].label or toStationKey
@@ -246,6 +252,34 @@ RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationK
             cost = details.cost,
         })
     end)
+end)
+
+RegisterServerEvent(eventName("CancelTeleport"), function()
+    local _source = source
+    local User = vorpCore.getUser(_source)
+    if not User or not User.getUsedCharacter then return end
+
+    local Character = User.getUsedCharacter
+    local steamHex = getPlayerSteamHex(Character)
+    if not steamHex then return end
+
+    local pending = pendingTeleportBySteamHex[steamHex]
+    if not pending then return end
+    pendingTeleportBySteamHex[steamHex] = nil
+
+    if os.time() >= pending.expiresAt then return end
+    teleportCooldownBySteamHex[steamHex] = nil
+    TriggerClientEvent(eventName("ReceiveUserCooldown"), _source, 0)
+    NotifyPlayer(
+        _source,
+        ("ยกเลิกการเดินทางแล้ว")
+    )
+
+    local playerName = (Character.firstname or "unknown") .. " " .. (Character.lastname or "unknown")
+    LogDataDog(
+        ("%s cancelled teleport | refund: $%d"):format(playerName, pending.cost),
+        _source
+    )
 end)
 
 RegisterServerEvent(eventName("RequestUserCooldown"), function()

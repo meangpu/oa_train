@@ -4,6 +4,10 @@ local isWaitTeleport = false
 local waitTeleportSecondsLeft = 0
 local waitTeleportDrawCoords = nil
 local waitTeleportToStationKey = nil
+local waitTeleportCancelled = false
+
+local WAIT_TELEPORT_STATE_BAG = "oa_train_waitTeleport"
+local otherWaitingPlayers = {}
 
 local interactDistance = Config.InteractDistance or 3.0
 local BlipData = {}
@@ -53,6 +57,12 @@ AddEventHandler("onResourceStop", function(resource)
     for _, blip in pairs(BlipData) do
         if blip then RemoveBlip(blip) end
     end
+    if isWaitTeleport then
+        local ped = PlayerPedId()
+        SetEntityAlpha(ped, 255, false)
+        FreezeEntityPosition(ped, false)
+    end
+    LocalPlayer.state:set(WAIT_TELEPORT_STATE_BAG, nil, true)
 end)
 
 --========================================
@@ -231,6 +241,21 @@ local function DrawText3D(x, y, z, text, bgWidth)
 end
 
 
+-- Same look as DrawText3D but without the shared damping state,
+-- so it can be drawn for several peds in the same frame.
+local function DrawText3DSimple(x, y, z, text, bgWidth)
+    local onScreen, _x, _y = GetScreenCoordFromWorldCoord(x, y, z)
+    if not onScreen then return end
+    local str = CreateVarString(10, "LITERAL_STRING", text, Citizen.ResultAsLong())
+    SetTextScale(0.33, 0.33)
+    SetTextFontForCurrentCommand(1)
+    SetTextColor(255, 255, 255, 215)
+    SetTextCentre(true)
+    DisplayText(str, _x, _y)
+    local factor = (bgWidth or string.len(text)) / 225
+    DrawSprite("feeds", "hud_menu_4a", _x, _y + 0.0125, 0.015 + factor, 0.03, 0.1, 35, 35, 35, 190, false)
+end
+
 local function ApplyLimitedControls(enableList)
     DisableAllControlActions(0)
     for _, controlHash in ipairs(enableList) do
@@ -266,6 +291,11 @@ local function getWaitTeleportDisplayText()
     )
 end
 
+-- Replicated to every client so other players can see the waiting state.
+local function setWaitTeleportStateBag(toStationKey)
+    LocalPlayer.state:set(WAIT_TELEPORT_STATE_BAG, toStationKey or nil, true)
+end
+
 local function FreezePlayer(waitSeconds, onComplete, toStationKey)
     if isWaitTeleport then
         NotifyPlayer("กำลังรออยู่แล้ว")
@@ -278,23 +308,50 @@ local function FreezePlayer(waitSeconds, onComplete, toStationKey)
     end
     local ped = PlayerPedId()
     isWaitTeleport = true
+    waitTeleportCancelled = false
     waitTeleportSecondsLeft = math.floor(waitSeconds)
     waitTeleportToStationKey = toStationKey
     waitTeleportDrawCoords = GetEntityCoords(ped)
     FreezeEntityPosition(ped, true)
     SetEntityAlpha(ped, 150, false)
     ClearPedTasks(ped)
+    setWaitTeleportStateBag(toStationKey)
+
+    -- Watch for the cancel key while the countdown is running
     CreateThread(function()
-        while waitTeleportSecondsLeft > 0 do
-            Wait(1000)
-            waitTeleportSecondsLeft = waitTeleportSecondsLeft - 1
+        while isWaitTeleport and waitTeleportSecondsLeft > 0 and not waitTeleportCancelled do
+            exports["oa_helptext"]:Help('กด R เพื่อยกเลิกการเดินทาง')
+            if IsControlJustPressed(0, Config.InteractionKey)
+                or IsDisabledControlJustPressed(0, Config.InteractionKey) then
+                waitTeleportCancelled = true
+            end
+            Wait(0)
         end
-        PlayRandomTrainSound()
-        if onComplete then onComplete() end
-        Wait(1000)
+    end)
+
+    CreateThread(function()
+        local endsAt = GetGameTimer() + waitTeleportSecondsLeft * 1000
+        while not waitTeleportCancelled do
+            local msLeft = endsAt - GetGameTimer()
+            if msLeft <= 0 then break end
+            waitTeleportSecondsLeft = math.ceil(msLeft / 1000)
+            Wait(100)
+        end
+
+        if waitTeleportCancelled then
+            TriggerServerEvent(eventName("CancelTeleport"))
+        else
+            waitTeleportSecondsLeft = 0
+            PlayRandomTrainSound()
+            if onComplete then onComplete() end
+            Wait(1000)
+        end
+
         SetEntityAlpha(ped, 255, false)
         FreezeEntityPosition(ped, false)
+        setWaitTeleportStateBag(nil)
         isWaitTeleport = false
+        waitTeleportCancelled = false
         waitTeleportDrawCoords = nil
         waitTeleportToStationKey = nil
     end)
@@ -407,6 +464,48 @@ RegisterNUICallback("NUILoaded", function(_, cb)
         },
     })
     cb('ok')
+end)
+
+--========================================
+--  Other players waiting to teleport
+--========================================
+AddStateBagChangeHandler(WAIT_TELEPORT_STATE_BAG, nil, function(bagName, _, toStationKey)
+    local player = GetPlayerFromStateBagName(bagName)
+    if not player or player == 0 then return end
+    if player == PlayerId() then return end -- local ped is handled in FreezePlayer
+
+    local ped = GetPlayerPed(player)
+    if ped and ped ~= 0 then
+        SetEntityAlpha(ped, toStationKey and 150 or 255, false)
+    end
+    if toStationKey then
+        otherWaitingPlayers[player] = toStationKey
+    else
+        otherWaitingPlayers[player] = nil
+    end
+end)
+
+CreateThread(function()
+    while true do
+        if next(otherWaitingPlayers) == nil then
+            Wait(1000)
+        else
+            local myCoords = GetEntityCoords(PlayerPedId())
+            for player, toStationKey in pairs(otherWaitingPlayers) do
+                local ped = GetPlayerPed(player)
+                if not NetworkIsPlayerActive(player) or not ped or ped == 0 then
+                    otherWaitingPlayers[player] = nil
+                else
+                    local coords = GetEntityCoords(ped)
+                    if GetPlayerDistanceToPos(coords, myCoords) < 25.0 then
+                        local text = ("Waiting for train ...")
+                        DrawText3DSimple(coords.x, coords.y, coords.z + 0.97, text, string.len(text))
+                    end
+                end
+            end
+            Wait(0)
+        end
+    end
 end)
 
 CreateThread(function()
