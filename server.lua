@@ -316,8 +316,15 @@ end, false)
 
 RegisterCommand("remove_train_cooldown", function(source, args, rawCommand)
     local targetSource = tonumber(args[1])
-    if not targetSource then
-        return print("ใช้งานด้วย /remove_train_cooldown <source>")
-    end
-    teleportCooldownBySteamHex[source] = nil
+    if not targetSource then return print("ใช้งานด้วย /remove_train_cooldown <source>") end
+    if not GetPlayerName(targetSource) then return print("ไม่พบผู้เล่น source: " .. targetSource) end
+    local User = vorpCore.getUser(targetSource)
+    if not User or not User.getUsedCharacter then return print("ไม่พบข้อมูลตัวละครของผู้เล่น source: " .. targetSource) end
+    local steamHex = getPlayerSteamHex(User.getUsedCharacter)
+    if not steamHex then return print("ไม่พบข้อมูลผู้เล่น source: " .. targetSource) end
+    teleportCooldownBySteamHex[steamHex] = nil
+    TriggerClientEvent(eventName("ReceiveUserCooldown"), targetSource, 0)
+    local successMessage = "ลบ train cooldown ของ source " .. targetSource .. " แล้ว"
+    NotifyPlayer(targetSource, "คุณสามารถใช้งานรถไฟอีกครั้งได้แล้ว")
+    print(successMessage)
 end, true)
