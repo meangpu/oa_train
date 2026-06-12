@@ -321,7 +321,7 @@ RegisterNetEvent(eventName("ReceiveUserCooldown"), function(cooldownEndsAt)
     syncUserCooldownToUI()
 end)
 
-RegisterNetEvent(eventName("ReceiveUserVipTier"), function(vipTier)
+local function applyUserVipTier(vipTier)
     myVipTierFetched = true
     if type(vipTier) == "string" and vipTier ~= "" then
         myVipTier = vipTier
@@ -329,6 +329,14 @@ RegisterNetEvent(eventName("ReceiveUserVipTier"), function(vipTier)
         myVipTier = nil
     end
     syncUserVipTierToUI()
+end
+
+RegisterNetEvent(eventName("ReceiveUserVipTier"), function(vipTier)
+    applyUserVipTier(vipTier)
+end)
+
+RegisterNetEvent("oa_vip_reward:UserVipTierChanged", function(vipTier)
+    applyUserVipTier(vipTier)
 end)
 
 RegisterNetEvent(eventName("TeleportToStationApproved"), function(data)
