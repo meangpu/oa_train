@@ -312,3 +312,12 @@ RegisterCommand("train_getTier", function(source, args, rawCommand)
         print(tier)
     end)
 end, false)
+
+
+RegisterCommand("remove_train_cooldown", function(source, args, rawCommand)
+    local targetSource = tonumber(args[1])
+    if not targetSource then
+        return print("ใช้งานด้วย /remove_train_cooldown <source>")
+    end
+    teleportCooldownBySteamHex[source] = nil
+end, true)
