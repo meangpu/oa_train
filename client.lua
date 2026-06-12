@@ -10,7 +10,9 @@ local BlipData = {}
 local nearNpc = false
 local TrainSounds = { "TrainGetIn.mp3", "TrainGetOut.mp3" }
 
-local trainUseCooldownEndsAt = nil -- nil = not yet synced from server; 0 = no active cooldown
+local trainUseCooldownEndsAt = nil
+local myVipTier = nil
+local myVipTierFetched = false
 
 --========================================
 --  Enable Controls
@@ -123,6 +125,21 @@ local function RequestUserCooldownFromServer()
     TriggerServerEvent(eventName("RequestUserCooldown"))
 end
 
+local function syncUserVipTierToUI()
+    SendNUIMessage({
+        type = "SetUserVipTier",
+        vipTier = myVipTier,
+    })
+end
+
+local function RequestUserVipTierFromServer()
+    if myVipTierFetched then
+        syncUserVipTierToUI()
+        return
+    end
+    TriggerServerEvent(eventName("RequestUserVipTier"))
+end
+
 local function SendPlayerLocationToUI()
     -- {"x":-1644.4381103515626,"y":-1393.212646484375,"z":83.19735717773438}
     local pCoord = GetEntityCoords(PlayerPedId())
@@ -139,6 +156,7 @@ local function OpenUI()
     SentPlayerMoneyToUI()
     SendPlayerLocationToUI()
     RequestUserCooldownFromServer()
+    RequestUserVipTierFromServer()
     SetNuiFocus(true, true)
     SetNuiFocusKeepInput(true)
     SendNUIMessage({ type = "OpenUI" })
@@ -301,6 +319,16 @@ RegisterNetEvent(eventName("ReceiveUserCooldown"), function(cooldownEndsAt)
     end
     trainUseCooldownEndsAt = cooldownEndsAt
     syncUserCooldownToUI()
+end)
+
+RegisterNetEvent(eventName("ReceiveUserVipTier"), function(vipTier)
+    myVipTierFetched = true
+    if type(vipTier) == "string" and vipTier ~= "" then
+        myVipTier = vipTier
+    else
+        myVipTier = nil
+    end
+    syncUserVipTierToUI()
 end)
 
 RegisterNetEvent(eventName("TeleportToStationApproved"), function(data)

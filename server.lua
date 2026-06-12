@@ -113,9 +113,13 @@ local function LogGuardWithSource(message, source)
     end
 end
 
-local function GetPlayerVipTier(steamHex)
+local function GetPlayerVipTier(steamHex, cb)
+    if not steamHex then
+        if cb then cb(nil) end
+        return
+    end
     exports.oa_vip_reward:GetHighestVipTier(steamHex, function(tier)
-        print(tier)
+        if cb then cb(tier) end
     end)
 end
 --==========================
@@ -245,6 +249,19 @@ RegisterServerEvent(eventName("RequestUserCooldown"), function()
     )
 end)
 
+RegisterServerEvent(eventName("RequestUserVipTier"), function()
+    local _source = source
+    local User = vorpCore.getUser(_source)
+    if not User or not User.getUsedCharacter then
+        TriggerClientEvent(eventName("ReceiveUserVipTier"), _source, nil)
+        return
+    end
+    local steamHex = getPlayerSteamHex(User.getUsedCharacter)
+    GetPlayerVipTier(steamHex, function(tier)
+        TriggerClientEvent(eventName("ReceiveUserVipTier"), _source, tier)
+    end)
+end)
+
 --==========================
 --  Commands
 --==========================
@@ -277,5 +294,7 @@ RegisterCommand("train_getTier", function(source, args, rawCommand)
     end
     local steamHex = getPlayerSteamHex(User.getUsedCharacter)
     print(steamHex)
-    GetPlayerVipTier(steamHex)
+    GetPlayerVipTier(steamHex, function(tier)
+        print(tier)
+    end)
 end, false)

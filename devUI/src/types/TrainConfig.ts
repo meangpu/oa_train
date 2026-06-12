@@ -18,3 +18,5 @@ export interface WaitTimeConfig {
   vip_medium: number;
   vip_large: number;
 }
+
+export type VipTierKey = keyof Omit<WaitTimeConfig, "default">;

@@ -4,7 +4,11 @@ import useGlobalModal from "./GlobalModal";
 import { NuiProxy } from "./NuiProxy";
 import AudioManager from "./AudioManager";
 import { ItemData } from "@/types/ItemData";
-import { TrainLocations, WaitTimeConfig } from "@/types/TrainConfig";
+import {
+  TrainLocations,
+  VipTierKey,
+  WaitTimeConfig,
+} from "@/types/TrainConfig";
 
 const DEFAULT_WAIT_TIME: WaitTimeConfig = {
   default: 60 * 60,
@@ -58,6 +62,9 @@ interface GlobalVarType {
 
   userCooldownEndsAt: number | null;
   setUserCooldownSecondsLeft: (seconds: number) => void;
+
+  userVipTier: VipTierKey | null;
+  setUserVipTier: (vipTier: VipTierKey | null) => void;
 
   setDisplayRoot: (display: boolean) => void;
   CloseUIDisableClient: () => void;
@@ -186,6 +193,15 @@ const useGlobalVar = create<GlobalVarType>((set, get) => {
     },
 
     userCooldownEndsAt: null,
+    userVipTier: null,
+    setUserVipTier: (vipTier: VipTierKey | null) => {
+      const validTiers: VipTierKey[] = ["vip_small", "vip_medium", "vip_large"];
+      const next =
+        vipTier && validTiers.includes(vipTier as VipTierKey)
+          ? (vipTier as VipTierKey)
+          : null;
+      set({ userVipTier: next });
+    },
     setUserCooldownSecondsLeft: (seconds: number) => {
       const next = Math.max(0, Math.floor(Number(seconds) || 0));
       if (next <= 0) {
@@ -297,6 +313,9 @@ export function useEventHandlers() {
           break;
         case "SetUserCooldown":
           useGlobalVar.getState().setUserCooldownSecondsLeft(data.secondsLeft);
+          break;
+        case "SetUserVipTier":
+          useGlobalVar.getState().setUserVipTier(data.vipTier ?? null);
           break;
       }
     };

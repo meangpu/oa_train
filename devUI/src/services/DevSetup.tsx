@@ -49,6 +49,7 @@ export function useDevSetup() {
           vip_large: 15 * 60,
         },
         playerMoney: 10000,
+        userVipTier: "vip_medium",
       });
       useGlobalVar.getState().setUserCooldownSecondsLeft(20);
     }
