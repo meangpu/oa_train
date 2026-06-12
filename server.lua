@@ -18,6 +18,16 @@ local function getPlayerSteamHex(Character)
     return Character and Character.identifier or nil
 end
 
+local function GetPlayerVipTier(steamHex, cb)
+    if not steamHex then
+        if cb then cb(nil) end
+        return
+    end
+    exports.oa_vip_reward:GetHighestVipTier(steamHex, function(tier)
+        if cb then cb(tier) end
+    end)
+end
+
 local function getCooldownMsForVipTier(vipTier)
     if type(vipTier) == "string" and Config.WaitTime[vipTier] then
         return Config.WaitTime[vipTier]
@@ -126,15 +136,6 @@ local function LogGuardWithSource(message, source)
     end
 end
 
-local function GetPlayerVipTier(steamHex, cb)
-    if not steamHex then
-        if cb then cb(nil) end
-        return
-    end
-    exports.oa_vip_reward:GetHighestVipTier(steamHex, function(tier)
-        if cb then cb(tier) end
-    end)
-end
 --==========================
 --  Event Handlers
 --==========================
