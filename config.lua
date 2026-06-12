@@ -3,6 +3,7 @@ local minute = 60 * 1000
 
 Config.BlipIcon = GetHashKey("blip_ambient_train")
 Config.InteractionKey = GetHashKey("INPUT_RELOAD")
+Config.CancelKey = GetHashKey("INPUT_GAME_MENU_TAB_RIGHT_SECONDARY")
 Config.InteractDistance = 3.0
 
 Config.Location = {

@@ -320,9 +320,9 @@ local function FreezePlayer(waitSeconds, onComplete, toStationKey)
     -- Watch for the cancel key while the countdown is running
     CreateThread(function()
         while isWaitTeleport and waitTeleportSecondsLeft > 0 and not waitTeleportCancelled do
-            exports["oa_helptext"]:Help('กด R เพื่อยกเลิกการเดินทาง')
-            if IsControlJustPressed(0, Config.InteractionKey)
-                or IsDisabledControlJustPressed(0, Config.InteractionKey) then
+            exports["oa_helptext"]:Help('กด X เพื่อยกเลิกการเดินทาง')
+            if IsControlJustPressed(0, Config.CancelKey)
+                or IsDisabledControlJustPressed(0, Config.CancelKey) then
                 waitTeleportCancelled = true
             end
             Wait(0)
