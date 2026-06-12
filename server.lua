@@ -1,6 +1,5 @@
 local scriptName = GetCurrentResourceName()
 local vorpCore = exports.vorp_core:GetCore()
-local vorpInventory = exports.vorp_inventory:vorp_inventoryApi()
 local teleportCooldownBySteamHex = {}
 
 AddEventHandler("onResourceStart", function(resource)
@@ -19,8 +18,22 @@ local function getPlayerSteamHex(Character)
     return Character and Character.identifier or nil
 end
 
-local function getPlayerCooldownMs(_source, Character)
+local function getCooldownMsForVipTier(vipTier)
+    if type(vipTier) == "string" and Config.WaitTime[vipTier] then
+        return Config.WaitTime[vipTier]
+    end
     return Config.WaitTime.default
+end
+
+local function getPlayerCooldownMs(Character, cb)
+    local steamHex = getPlayerSteamHex(Character)
+    if not steamHex then
+        if cb then cb(Config.WaitTime.default) end
+        return
+    end
+    GetPlayerVipTier(steamHex, function(tier)
+        if cb then cb(getCooldownMsForVipTier(tier)) end
+    end)
 end
 
 local function getCooldownEndsAt(steamHex)
@@ -211,27 +224,27 @@ RegisterServerEvent(eventName("RequestTeleportToStation"), function(fromStationK
         Character.removeCurrency(0, details.cost)
     end
 
-    setCooldown(steamHex, getPlayerCooldownMs(_source, Character))
-    TriggerClientEvent(eventName("ReceiveUserCooldown"), _source, getCooldownEndsAt(steamHex))
-
-    local fromLabel = Config.Location[fromStationKey].label or fromStationKey
-    local toLabel = Config.Location[toStationKey].label or toStationKey
-    LogDataDog(
-        ("%s %s -> %s | cost: $%d | wait: %d sec"):format(
-            playerName,
-            fromLabel,
-            toLabel,
-            details.cost,
-            details.waitSeconds
-        ),
-        _source
-    )
-
-    TriggerClientEvent(eventName("TeleportToStationApproved"), _source, {
-        toStationKey = toStationKey,
-        waitSeconds = details.waitSeconds,
-        cost = details.cost,
-    })
+    getPlayerCooldownMs(Character, function(cooldownMs)
+        setCooldown(steamHex, cooldownMs)
+        TriggerClientEvent(eventName("ReceiveUserCooldown"), _source, getCooldownEndsAt(steamHex))
+        local fromLabel = Config.Location[fromStationKey].label or fromStationKey
+        local toLabel = Config.Location[toStationKey].label or toStationKey
+        LogDataDog(
+            ("%s %s -> %s | cost: $%d | wait: %d sec"):format(
+                playerName,
+                fromLabel,
+                toLabel,
+                details.cost,
+                details.waitSeconds
+            ),
+            _source
+        )
+        TriggerClientEvent(eventName("TeleportToStationApproved"), _source, {
+            toStationKey = toStationKey,
+            waitSeconds = details.waitSeconds,
+            cost = details.cost,
+        })
+    end)
 end)
 
 RegisterServerEvent(eventName("RequestUserCooldown"), function()
