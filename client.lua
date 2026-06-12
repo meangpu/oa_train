@@ -21,6 +21,7 @@ local uiControlsToEnable = {
     GetHashKey("INPUT_PUSH_TO_TALK"),
     GetHashKey("INPUT_AIM_IN_AIR") -- U
 }
+
 local freezeControlsToEnable = {
     GetHashKey("INPUT_PUSH_TO_TALK"),
     GetHashKey("INPUT_AIM_IN_AIR"), -- U
@@ -303,10 +304,9 @@ end
 --========================================
 --  Event Listeners,
 --========================================
-
-RegisterNetEvent("oa_toggleUI", function(isHide)
-    SendNUIMessage({ type = 'SetGlobalShow', show = not isHide })
-end)
+-- RegisterNetEvent("oa_toggleUI", function(isHide)
+--     SendNUIMessage({ type = 'SetGlobalShow', show = not isHide })
+-- end)
 
 RegisterNetEvent("oa_lib:forceCloseNuiFocus", function()
     CloseUI()
