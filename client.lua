@@ -175,11 +175,12 @@ local function OpenUI()
 end
 
 local function TeleportToLocation(loc)
+    local ped = PlayerPedId()
+    ClearPedTasks(ped)
     DoScreenFadeOut(1000)
     while IsScreenFadingOut() do
         Wait(0)
     end
-    local ped = PlayerPedId()
     SetEntityCoords(ped, loc.x, loc.y, loc.z, true, true, false, false)
     if loc.w then
         SetEntityHeading(ped, loc.w)
